@@ -9,3 +9,4 @@ Roadmap for coming days and weeks:
 2. Homogeneity evaluation and null-model testing via rotation
 3. Code to get from connectivity data to gradients (mostly this involves wrapping some algorithms from ["Connectome Workbench"](https://humanconnectome.org/software/workbench-command))
 
+The basic sequence of operations is connectivity --> gradients --> watershed --> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of the step.
