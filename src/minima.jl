@@ -4,18 +4,11 @@ using SparseArrays
 
 function make_adjmat(neigh::Vector{Vector{Int}})::SpareMatrixCSC
 	adjmat = spzeros(Bool, nverts, nverts)
-	for i in 1:nverts
-		adjmat[i, i] = true
-		adjmat[i, neigh[i]] .= true
+	for v in 1:nverts
+		adjmat[v, v] = true
+		adjmat[v, neigh[v]] .= true
 	end
 	return adjmat
-end
-
-function find_minima(metric::AbstractMatrix, reachability::AbstractMatrix, v::Int)::BitMatrix
-	neighbors = setdiff(findall(reachability[v, :] .!= 0), v)
-	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
-	b = @view metric[neighbors, :]
-	all(b - a .> 0; dims = 1)
 end
 
 function load_gradients(filename::String)
@@ -24,14 +17,18 @@ function load_gradients(filename::String)
 end
 
 function load_neighbors()
-	load("./32k_tools/neighbors.jld", "neigh")
+	return load("./32k_tools/neighbors.jld", "neigh")
 end
 
-function make_minima_metrics(grads::AbstractMatrix, adjmat::SparseMatrixCSC)
-	# let reachability be a nverts x nverts matrix where, in each row, 
-	# the non-zero elements will be the set of vertices reachable within 3 steps
-	reachability = adjmat ^ 3
+function find_minima(metric::AbstractMatrix, reachability::AbstractMatrix, v::Int)::BitMatrix
+	neighbors = setdiff(findall(reachability[v, :] .!= 0), v)
+	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
+	b = @view metric[neighbors, :]
+	return all(b - a .> 0; dims = 1)
+end
 
+function find_minima(grads::AbstractMatrix, adjmat::SparseMatrixCSC)
+	reachability = adjmat ^ 3 # for each vert, identify 3-step-reachable vertices
 	minima = BitMatrix(undef, nverts, nverts)
 	Threads.@threads for v in 1:nverts
 		minima[v, :] = find_minima(grads, reachability, v)
