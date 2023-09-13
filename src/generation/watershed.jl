@@ -4,6 +4,8 @@ using Chain
 using StatsBase: sample
 using ThreadsX
 
+export run_watershed
+
 # doesn't return a val, but modifies label and watershed_zones vectors in place
 function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin
@@ -61,5 +63,4 @@ function run_watershed(
 	)
 	return mean(edges .== 0; dims = 2)[:]
 end
-export run_watershed
 

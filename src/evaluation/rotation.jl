@@ -48,7 +48,7 @@ end
 # the set of sphere-projected cortical vertices via nearest neighbor calcuation
 function get_rotated_parcel(xyzrot_coords::Matrix, tree::KDTree, hem::CiftiStructure)
 	rotated_inds, dists = knn(tree, xyzrot_coords, 1)
-	rotated_inds = [x[1] for x in rotated_inds] # simplify to just a vector
+	rotated_inds = [x[1] for x in rotated_inds] # flatten result to just a vector
 	rotated_inds .+= (hem == CORTEX_LEFT ? 0 : nverts_L)
 	rotated_inds = full2trunc[rotated_inds] # reduce to surface verts only
 	rotated_parcel = BitVector(undef, nverts) * false
