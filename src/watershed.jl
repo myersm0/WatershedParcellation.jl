@@ -61,4 +61,5 @@ function run_watershed(
 	)
 	return mean(edges .== 0; dims = 2)[:]
 end
+export run_watershed
 
