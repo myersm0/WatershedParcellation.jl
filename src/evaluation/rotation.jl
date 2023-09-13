@@ -47,27 +47,27 @@ end
 
 function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int64)
 	curr_size = sum(rotated_parcel)
-	delta = curr_size - desired_size
+	Δ = curr_size - desired_size
 	maxiter = 20
 	i = 1
 	# if rotated parcel is smaller than the real one, grow it
-	while delta < 0 && i < maxiter 
+	while Δ < 0 && i < maxiter 
 		# find wherever there's no rot parcel assignment, 
 		# but at least one of the neighbors belongs to the parcel;
 		# fill up the rot parcel with as many of these border verts as you can, 
 		# without making the rot parcel bigger than the real one
 		temp = findall(rotated_parcel .&& .!baddata)
 		border_verts = setdiff(adjmat[:, temp].rowval, temp)
-		border_verts = border_verts[1:min(abs(delta), length(border_verts))]
+		border_verts = border_verts[1:min(abs(Δ), length(border_verts))]
 		rotated_parcel[border_verts] .= true
-		delta += length(border_verts)
+		Δ += length(border_verts)
 		i += 1
 		if i == maxiter
 			println("Warning: maxiter condition reached")
 		end
 	end
 	# if rotated parcel is bigger than the real one, shrink it
-	while delta > 0 && i < maxiter 
+	while Δ > 0 && i < maxiter 
 		# find wherever there's a rotated parcel vert 
 		# but at least one of its neighbors doesn't belong to the parcel;
 		# get rid of as many of these border verts as you can, 
@@ -75,9 +75,9 @@ function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int
 		temp = rotated_parcel .&& .!baddata
 		temp2 = findall(temp)
 		border_verts = temp2[adjmat[temp, .!temp].rowval]
-		border_verts = border_verts[1:min(delta, length(border_verts))]
+		border_verts = border_verts[1:min(Δ, length(border_verts))]
 		rotated_parcel[border_verts] .= false
-		delta -= length(border_verts)
+		Δ -= length(border_verts)
 		i += 1
 		if i == maxiter
 			println("Warning: maxiter condition reached")
