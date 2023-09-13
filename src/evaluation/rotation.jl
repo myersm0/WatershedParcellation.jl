@@ -41,7 +41,7 @@ end
 function rotate_on_sphere(rotmat::Array{Number, 3}, sphere_coords::Matrix{Number})
 	xrot_coords = rotmat[1, :, :] * sphere_coords'
 	xyrot_coords = rotmat[2, :, :] * xrot_coords
-	rotmat[3, :, :] * xyrot_coords
+	return rotmat[3, :, :] * xyrot_coords
 end
 
 # take a set of rotated spherical coords from the above fn, and map them to 
@@ -68,14 +68,15 @@ function fill_in_gaps!(rotated_parcel::BitVector, neigh::VertexList)
 		length(add_inds) > 0 || break
 		rotated_parcel[add_inds] .= true
 	end
-	return rotated_parcel
 end
 
-function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int64)
+function dilate_or_contract_parcel!(
+		rotated_parcel::BitVector, desired_size::Int; maxiter::Int = 20
+	)
 	curr_size = sum(rotated_parcel)
 	Δ = curr_size - desired_size
-	maxiter = 20
 	i = 1
+
 	# if rotated parcel is smaller than the real one, grow it
 	while Δ < 0 && i < maxiter 
 		# find wherever there's no rot parcel assignment, 
@@ -88,10 +89,9 @@ function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int
 		rotated_parcel[border_verts] .= true
 		Δ += length(border_verts)
 		i += 1
-		if i == maxiter
-			println("Warning: maxiter condition reached")
-		end
+		i == maxiter && println("Warning: maxiter condition reached")
 	end
+
 	# if rotated parcel is bigger than the real one, shrink it
 	while Δ > 0 && i < maxiter 
 		# find wherever there's a rotated parcel vert 
@@ -105,15 +105,14 @@ function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int
 		rotated_parcel[border_verts] .= false
 		Δ -= length(border_verts)
 		i += 1
-		if i == maxiter
-			println("Warning: maxiter condition reached")
-		end
+		i == maxiter && println("Warning: maxiter condition reached")
 	end
+
 	temp = findall(rotated_parcel .&& .!baddata)
 	border_verts = setdiff(adjmat[:, temp].rowval, temp)
 	if length(border_verts) / length(temp) >= 3
 		rotated_parcel .= false
 	end
 end
-    
+
 
