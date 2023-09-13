@@ -14,6 +14,15 @@ Availability of 8 CPU cores is recommended.
 
 The basic sequence of operations is connectivity -> gradients -> watershed -> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of that step.
 
+## Installation
+I aim to add this code to the Julia general repository. Until then, installation is as follows:
+```
+using Pkg
+Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
+```
+
+Eventually I aim to add the option to run a standalone executable so that you don't have to know Julia or manage a Julia session yourself in order to generate results.
+
 ## Usage
 ### Running the watershed algorithm to produce an edge map
 Before loading Julia, you need to inform it of the number of available processing cores by setting an environment variable, for example `export JULIA_NUM_THREADS=8` in bash. Then, within Julia:
