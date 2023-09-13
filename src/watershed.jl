@@ -38,9 +38,7 @@ end
 		chunk::UnitRange, 
 		heights::StepRangeLen
 	)
-	start = (chunk - 1) * chunk_size + 1
-	stop = min(nverts, chunk * chunk_size)
-	for i in start:stop
+	for i in chunk
 		label = @view edges[:, i] 
 		edgemetric = @view grads[:, i] 
 		labelpos = findall(minima[:, i])
