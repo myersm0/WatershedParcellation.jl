@@ -2,7 +2,9 @@
 using Cifti
 using SparseArrays
 
-function make_adjmat(neigh::Vector{Vector{Int}})::SpareMatrixCSC
+const Neighbors = Vector{Vector{UInt16}}
+
+function make_adjmat(neigh::Neighbors)
 	adjmat = spzeros(Bool, nverts, nverts)
 	for v in 1:nverts
 		adjmat[v, v] = true

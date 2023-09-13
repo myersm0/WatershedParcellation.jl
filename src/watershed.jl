@@ -34,7 +34,7 @@ end
 		edges::AbstractMatrix, 
 		grads::AbstractMatrix, 
 		minima::BitMatrix, 
-		neigh::Vector{Vector{UInt16}}, 
+		neigh::Neighbors,
 		chunk::UnitRange, 
 		heights::StepRangeLen
 	)
@@ -51,7 +51,7 @@ end
 end
 
 function run_watershed(
-		grads::Matrix, minima::BitMatrix, neigh::Vector{Vector{UInt16}};
+		grads::Matrix, minima::BitMatrix, neigh::Neighbors;
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
 	minheight = minimum(grads)
