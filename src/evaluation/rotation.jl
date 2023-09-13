@@ -1,5 +1,12 @@
 
+using Cifti
 using NearestNeighbors
+
+const sphere = h5read(sphere_file, "sphereLR")
+const trees = Dict(
+	CORTEX_LEFT => KDTree(sphere[1:verts_per_hem, :]'; leafsize = 10)
+	CORTEX_RIGHT => KDTree(sphere[(verts_per_hem + 1):end, :]'; leafsize = 10)
+)
 
 # take specified 3d rotational params, generate three 3x3 rotational matrices
 # (so result is a 3x3x3 array)
@@ -11,6 +18,25 @@ function make_rotmats(xrot::Number, yrot::Number, zrot::Number)
 	return rotmat
 end
 
+# load in a pre-defined rotation
+function make_rotmats(filename::String)
+	temp = matread(filename)
+	rotations = zeros(size(temp, 1))
+	rotations[:, 1] .= temp["rotations"]["xrot"][:]
+	rotations[:, 2] .= temp["rotations"]["yrot"][:]
+	rotations[:, 3] .= temp["rotations"]["zrot"][:]
+	return rotations
+end
+
+# wrap `make_rotmats(x, y, z)` with a randomly initialized set of rotational params
+function make_rotmats(nrot::Int)
+	rotations = @chain begin
+		randn(nrot * 3) * 2π
+		reshape(_, (nrot, 3))
+	end
+	return rotations
+end
+
 # take a trio of rotation matrices generated from the above fn, map it to the sphere
 function rotate_on_sphere(rotmat::Array{Number, 3}, sphere_coords::Matrix{Number})
 	xrot_coords = rotmat[1, :, :] * sphere_coords'
@@ -20,10 +46,10 @@ end
 
 # take a set of rotated spherical coords from the above fn, and map them to 
 # the set of sphere-projected cortical vertices via nearest neighbor calcuation
-function get_rotated_parcel(xyzrot_coords::Matrix{Number}, tree::KDTree, hem::Char)
+function get_rotated_parcel(xyzrot_coords::Matrix, tree::KDTree, hem::CiftiStructure)
 	rotated_inds, dists = knn(tree, xyzrot_coords, 1)
 	rotated_inds = [x[1] for x in rotated_inds] # simplify to just a vector
-	rotated_inds .+= (hem == 'L' ? 0 : nverts_L)
+	rotated_inds .+= (hem == CORTEX_LEFT ? 0 : nverts_L)
 	rotated_inds = full2trunc[rotated_inds] # reduce to surface verts only
 	rotated_parcel = BitVector(undef, nverts) * false
 	# if any verts ended up in the medial wall, we'll throw it out
@@ -90,6 +116,4 @@ function dilate_or_contract_parcel!(rotated_parcel::BitVector, desired_size::Int
 	end
 end
     
-
-
 
