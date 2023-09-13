@@ -1,5 +1,4 @@
 
-using LinearAlgebra
 using NearestNeighbors
 
 # take specified 3d rotational params, generate three 3x3 rotational matrices
