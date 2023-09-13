@@ -17,7 +17,7 @@ function load_gradients(filename::String)
 end
 
 function load_neighbors()
-	return load("./32k_tools/neighbors.jld", "neigh")
+	return load("$assets_dir/neighbors.jld", "neigh")
 end
 
 function find_minima(metric::AbstractMatrix, reachability::AbstractMatrix, v::Int)::BitMatrix
