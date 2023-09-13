@@ -3,9 +3,9 @@
 Under development. I aim to release my code here over the next several days and weeks, both in the form of a Julia module and as a standalone executable, as adapted from the original MATLAB code by Tim Laumann and Evan Gordon from their 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/). 
 
 ## Resource requirements
-As the whole process requires passing around several large matrices, care has been taken to reduce RAM overhead (by using sparse matrices and low-storage element types where possible, for example) so that about 40 GB should be sufficient to run the whole thing.
+The whole process requires passing around several large matrices. Care has been taken to reduce RAM overhead, by using sparse representations and low-storage element types where possible. About 40 GB should be sufficient to run the whole thing.
 
-For running the watershed, availability of 8 CPU cores is assumed. Later I'll add the flexibility to use more or fewer.
+Availability of 8 CPU cores is recommended.
 
 ## Roadmap
 1. The core watershed algorithm to generate edge maps from gradients (status: almost ready to use)
@@ -16,6 +16,7 @@ The basic sequence of operations is connectivity -> gradients -> watershed -> ho
 
 ## Usage
 ### Running the watershed algorithm to produce an edge map
+Before loading Julia, you need to inform it of the number of available processing cores by setting an environment variable, for example `export JULIA_NUM_THREADS=8` in bash. Then, within Julia:
 
 ```
 grads = load_gradients(filename) # not yet implemented
