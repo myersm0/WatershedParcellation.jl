@@ -1,16 +1,13 @@
 
-using Distributed
-addprocs(8)
-
 using Statistics: mean
-@everywhere using Chain
-@everywhere using SharedArrays
-@everywhere using StatsBase: sample
+using Chain
+using StatsBase: sample
+using ThreadsX
 
 const nverts = 59412
 
 # doesn't return a val, but modifies label and watershed_zones vectors in place
-@everywhere function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
+function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin
 		(edgemetric .< h) .&& (label .== 0) .&& (watershed_zones .== 0)
 		findall
@@ -30,7 +27,7 @@ const nverts = 59412
 	end
 end
 
-@everywhere function watershed_chunk(
+function watershed_chunk(
 		edges::AbstractMatrix, 
 		grads::AbstractMatrix, 
 		minima::BitMatrix, 
@@ -58,10 +55,10 @@ function run_watershed(
 	maxheight = maximum(grads) * fracmaxh
 	heights = range(minheight, maxheight, length = nsteps)
 	chunk_size = Int(floor(nverts / nchunks))
-	edges = SharedArray(zeros(UInt16, nverts, nverts))
+	edges = zeros(UInt16, nverts, nverts)
 	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
-	pmap(
-		chunk -> watershed_chunk(edges, grads, minima, neigh, chunk, heights),
+	ThreadsX.foreach(
+		chunk -> watershed_chunk(edges, grads, minima, neigh, chunk, heights), 
 		chunks
 	)
 	return mean(edges .== 0; dims = 2)[:]
