@@ -30,7 +30,14 @@ const nverts = 59412
 	end
 end
 
-@everywhere function watershed_chunk(edges::AbstractMatrix, grads::AbstractMatrix, minima::BitMatrix, neigh::Vector{Vector{UInt16}}, chunk::Int, chunk_size::Int, hiter::StepRangeLen)
+@everywhere function watershed_chunk(
+		edges::AbstractMatrix, 
+		grads::AbstractMatrix, 
+		minima::BitMatrix, 
+		neigh::Vector{Vector{UInt16}}, 
+		chunk::UnitRange, 
+		heights::StepRangeLen
+	)
 	start = (chunk - 1) * chunk_size + 1
 	stop = min(nverts, chunk * chunk_size)
 	for i in start:stop
@@ -41,12 +48,9 @@ end
 		labelnums = sortperm(randval)
 		label[labelpos] = labelnums
 		watershed_zones = zeros(nverts)
-		[eval_at_height(h, label, edgemetric, watershed_zones, neigh) for h in hiter]
+		[eval_at_height(h, label, edgemetric, watershed_zones, neigh) for h in heights]
 	end
 end
-
-sendto(workers(); minima = minima)
-sendto(workers(); neigh = neigh)
 
 function run_watershed(
 		grads::Matrix, minima::BitMatrix, neigh::Vector{Vector{UInt16}};
@@ -57,15 +61,13 @@ function run_watershed(
 	heights = range(minheight, maxheight, length = nsteps)
 	chunk_size = Int(floor(nverts / nchunks))
 	edges = SharedArray(zeros(UInt16, nverts, nverts))
+	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
 	pmap(
-		chunk -> watershed_chunk(edges, grads, minima, neigh, chunk, chunk_size, heights),
-		1:nchunks
+		chunk -> watershed_chunk(edges, grads, minima, neigh, chunk, heights),
+		chunks
 	)
 	return mean(edges .== 0; dims = 2)[:]
 end
-
-
-
 
 
 
