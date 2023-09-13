@@ -2,7 +2,7 @@
 
 Under development. I aim to release my code here over the next several days and weeks, both in the form of a Julia module and as a standalone executable, as adapted from the original MATLAB code by Tim Laumann and Evan Gordon from their 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/).
 
-Our soon-to-be published results, a neonatal parcellation generated from a dataset of 262 subjects, can be found ["here"](https://github.com/myersm0/Myers-Labonte_parcellation).
+Our soon-to-be published results, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation).
 
 ## Resource requirements
 The whole process requires passing around several large matrices. Care has been taken to reduce the RAM footprint by using sparse representations and small element types where possible. 32 GB RAM should be sufficient to run all the code.
@@ -17,7 +17,7 @@ Availability of 8 CPU cores is recommended. In the current state of implementati
 The basic sequence of operations is connectivity -> gradients -> watershed -> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of that step.
 
 ## Installation
-I aim to add this code to the Julia general repository. Until then, installation is as follows:
+I aim to submit this code to the Julia general registry. Until then, installation is as follows:
 ```
 using Pkg
 Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
