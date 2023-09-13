@@ -2,9 +2,9 @@
 using Distributed
 addprocs(8)
 
+using Statistics: mean
 @everywhere using Chain
 @everywhere using SharedArrays
-@everywhere using ParallelDataTransfer
 @everywhere using StatsBase: sample
 
 const nverts = 59412
@@ -66,9 +66,4 @@ function run_watershed(
 	)
 	return mean(edges .== 0; dims = 2)[:]
 end
-
-
-
-
-
 
