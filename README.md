@@ -6,8 +6,7 @@ Roadmap for coming days and weeks:
 1. The core watershed algorithm to generate edgemaps from gradients (status: almost ready to use)
 2. Homogeneity evaluation and null-model testing via rotation (ETA: week of Sept 17th)
 3. Code to get from connectivity data to gradients (ETA: week of Sept 24th)
-  - mostly this involves wrapping some algorithms from ["Connectome Workbench"](https://humanconnectome.org/software/workbench-command))
 
-The basic sequence of operations is connectivity -> gradients -> watershed -> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of the step.
+The basic sequence of operations is connectivity -> gradients -> watershed -> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of that step.
 
 [![Build Status](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml?query=branch%3Amain)
