@@ -31,7 +31,7 @@ function watershed_chunk(
 		edges::AbstractMatrix, 
 		grads::AbstractMatrix, 
 		minima::BitMatrix, 
-		neigh::Neighbors,
+		neigh::VertexList,
 		chunk::UnitRange, 
 		heights::StepRangeLen
 	)
@@ -48,7 +48,7 @@ function watershed_chunk(
 end
 
 function run_watershed(
-		grads::Matrix, minima::BitMatrix, neigh::Neighbors;
+		grads::Matrix, minima::BitMatrix, neigh::VertexList;
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
 	minheight = minimum(grads)
