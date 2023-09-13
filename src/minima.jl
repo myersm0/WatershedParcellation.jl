@@ -2,8 +2,6 @@
 using Cifti
 using SparseArrays
 
-const VertexList = Vector{Vector{UInt16}}
-
 function make_adjmat(neigh::VertexList)
 	adjmat = spzeros(Bool, nverts, nverts)
 	for v in 1:nverts

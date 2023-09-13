@@ -4,8 +4,6 @@ using Chain
 using StatsBase: sample
 using ThreadsX
 
-const nverts = 59412
-
 # doesn't return a val, but modifies label and watershed_zones vectors in place
 function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin
