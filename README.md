@@ -8,10 +8,21 @@ As the whole process requires passing around several large matrices, care has be
 For running the watershed, availability of 8 CPU cores is assumed. Later I'll add the flexibility to use more or fewer.
 
 ## Roadmap
-1. The core watershed algorithm to generate edgemaps from gradients (status: almost ready to use)
+1. The core watershed algorithm to generate edge maps from gradients (status: almost ready to use)
 2. Homogeneity evaluation and null-model testing via rotation (ETA: week of Sept 17th)
 3. Code to get from connectivity data to gradients (ETA: week of Sept 24th)
 
 The basic sequence of operations is connectivity -> gradients -> watershed -> homogeneity testing. However, the creation of gradients has several external dependencies and process complexities so I'm postponing the release of that step.
+
+## Usage
+### Running the watershed algorithm to produce an edge map
+
+```
+grads = load_gradients(filename) # not yet implemented
+neigh = load_neighbors()
+adjmat = make_adjmat(neigh)
+minima = find_minima(grads, adjmat)
+edgemap = run_watershed(grads, minima, neigh)
+```
 
 [![Build Status](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml?query=branch%3Amain)
