@@ -4,8 +4,8 @@ Under development. I aim to release my code here over the next several days and 
 
 Our soon-to-be published results, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation).
 
-## Resource requirements
-32 GB RAM (required), 8 CPU cores (recommended). Parallelism gains are currently saturated around 8 cores so I don't recommend going higher than that.
+## System requirements
+32 GB RAM (required), 8 CPU cores (recommended).
 
 ## Roadmap
 1. The core watershed algorithm to generate edge maps from gradients (status: almost ready to use)
