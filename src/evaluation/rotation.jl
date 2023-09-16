@@ -1,5 +1,5 @@
 
-using Cifti
+using CIFTI
 using NearestNeighbors
 using HDF5
 using OrderedCollections
@@ -52,7 +52,7 @@ end
 
 # take a set of rotated spherical coords from the above fn, and map them to 
 # the set of sphere-projected cortical vertices via nearest neighbor calcuation
-function get_rotated_parcel(xyzrot_coords::Matrix, tree::KDTree, hem::CiftiStructure)
+function get_rotated_parcel(xyzrot_coords::Matrix, tree::KDTree, hem::BrainStructure)
 	rotated_inds, dists = knn(tree, xyzrot_coords, 1)
 	rotated_inds = [x[1] for x in rotated_inds] # flatten result to just a vector
 	rotated_inds .+= (hem == CORTEX_LEFT ? 0 : nverts_L_full)
@@ -64,12 +64,6 @@ function get_rotated_parcel(xyzrot_coords::Matrix, tree::KDTree, hem::CiftiStruc
 	end
 	return rotated_parcel
 end
-
-# 191, 192, 369
-
-# 31 numbers in new that are not in old; the first is 177
-# 24 numbers in old that are not in new
-# I found the problem: I need to exclude baddata real parcels before evaluating
 
 function fill_in_gaps!(rotated_parcel::BitVector, neigh::VertexList)
 	while true
@@ -122,7 +116,7 @@ function dilate_or_contract_parcel!(
 	end
 end
 
-function process_rotation!(label::Int, verts::Vector, rotmat::Array, parcel_size::Int, tree::KDTree, hem::CiftiStructure, neigh::VertexList, adjmat::AbstractMatrix)
+function process_rotation!(label::Int, verts::Vector, rotmat::Array, parcel_size::Int, tree::KDTree, hem::BrainStructure, neigh::VertexList, adjmat::AbstractMatrix)
 	xyzrot_coords = rotate_on_sphere(rotmat, sphere[trunc2full[verts], :])
 	rotated_parcel = get_rotated_parcel(xyzrot_coords, tree, hem)
 	sum(rotated_parcel) > 0 || return
@@ -133,7 +127,7 @@ function process_rotation!(label::Int, verts::Vector, rotmat::Array, parcel_size
 end
 
 function rotation_wrapper(parcel_file::String, rotmat::Array)
-	parcels = @chain read_cifti(parcel_file).data vec convert.(UInt16, _)
+	parcels = @chain CIFTI.load(parcel_file)[LR] vec convert.(UInt16, _)
 	ids = sort(setdiff(parcels, 0))
 	verts = OrderedDict([p => findall(parcels .== p) for p in ids])
 	sizes = [length(verts[p]) for p in ids]
@@ -148,14 +142,7 @@ function rotation_wrapper(parcel_file::String, rotmat::Array)
 		end
 		all_rot_verts[:, r] .= rot_verts
 	end
+	return all_rot_verts
 end
-
-
-
-
-
-
-
-
 
 

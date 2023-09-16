@@ -6,8 +6,12 @@ adjmat = make_adjmat(neigh)
 minima = find_minima(grads, adjmat)
 edgemap = run_watershed(grads, minima, neigh)
 
+# TODO: I need to exclude baddata real parcels before evaluating
+
 # rotations
 rotations = make_rotmats(rotations_file)
+
+test = rotation_wrapper(parcel_file, rotations)
 
 
 
