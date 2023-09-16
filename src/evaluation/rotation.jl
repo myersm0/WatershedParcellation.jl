@@ -116,7 +116,7 @@ function dilate_or_contract_parcel!(
 	end
 end
 
-function process_rotation!(label::Int, verts::Vector, rotmat::Array, parcel_size::Int, tree::KDTree, hem::BrainStructure, neigh::VertexList, adjmat::AbstractMatrix)
+function process_rotation!(rot_verts::Vector{UInt16}, label::Int, verts::Vector, rotmat::Array, parcel_size::Int, tree::KDTree, hem::BrainStructure, neigh::VertexList, adjmat::AbstractMatrix)
 	xyzrot_coords = rotate_on_sphere(rotmat, sphere[trunc2full[verts], :])
 	rotated_parcel = get_rotated_parcel(xyzrot_coords, tree, hem)
 	sum(rotated_parcel) > 0 || return
@@ -134,11 +134,11 @@ function rotation_wrapper(parcel_file::String, rotmat::Array)
 	hems = [verts[p][1] <= nverts_L_trunc ? L : R for p in ids]
 	nparc = length(ids)
 	all_rot_verts = zeros(UInt16, nverts, nrot)
-	for r in 1:nrot
+	Threads.@threads for r in 1:nrot
 		rotmat = rotations[r, :, :, :]
 		rot_verts = zeros(UInt16, nverts)
 		for i in 1:nparc
-			process_rotation!(i, verts[ids[i]], rotmat, sizes[i], trees[hems[i]], hems[i], neigh, adjmat)
+			process_rotation!(rot_verts, i, verts[ids[i]], rotmat, sizes[i], trees[hems[i]], hems[i], neigh, adjmat) # median 6.65 ms
 		end
 		all_rot_verts[:, r] .= rot_verts
 	end

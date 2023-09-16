@@ -15,7 +15,7 @@ const nverts_L_trunc = length(refcifti.brainstructure[L])
 const nverts_L_full = nverts_L_trunc + sum(mw_verts .<= nverts_L_trunc)
 const full2trunc = zeros(Int, nverts_L_full * 2)
 const trunc2full = setdiff(1:(nverts + length(mw_verts)), mw_verts)
-full2trunc[setdiff(1:length(full2trunc), mw_verts)] .= surf_inds
+full2trunc[setdiff(1:length(full2trunc), mw_verts)] .= 1:length(baddata)
 const minsize = 15
 const nrot = 1000
 
