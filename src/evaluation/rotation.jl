@@ -146,13 +146,13 @@ function process_rotation!(
 end
 
 function rotation_wrapper(parcels::Dict, rotations::Vector{Array{Float64, 3}})
-	ids = collect(keys(parcels))
+	parcel_ids = collect(keys(parcels))
 	all_rot_verts = zeros(UInt16, nverts, nrot)
 	Threads.@threads for r in 1:nrot
 		rotmats = rotations[r]
 		rot_verts = zeros(UInt16, nverts)
-		for parc in ids
-			process_rotation!(rot_verts, parcels[parc], rotmats, tree, neigh, adjmat)
+		for id in parcel_ids
+			process_rotation!(rot_verts, parcels[id], rotmats, tree, neigh, adjmat)
 		end
 		all_rot_verts[:, r] .= rot_verts
 	end
