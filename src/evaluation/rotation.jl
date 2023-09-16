@@ -12,38 +12,33 @@ const trees = Dict(
 
 # take specified 3d rotational params, generate three 3x3 rotational matrices
 # (so result is a 3x3x3 array)
-function make_rotmats(xrot::Number, yrot::Number, zrot::Number)
-	rotmat = zeros(Float64, 3, 3, 3)
-	rotmat[1, :, :] = [1 0 0; 0 cos(xrot) -sin(xrot); 0 sin(xrot) cos(xrot)]
-	rotmat[2, :, :] = [cos(yrot) 0 sin(yrot); 0 1 0; -sin(yrot) 0 cos(yrot)]
-	rotmat[3, :, :] = [cos(zrot) -sin(zrot) 0; sin(zrot) cos(zrot) 0; 0 0 1]
-	return rotmat
+function compute_rotation_mats(xrot::Number, yrot::Number, zrot::Number)
+	rot = zeros(Float64, 3, 3, 3)
+	rot[1, :, :] = [1 0 0; 0 cos(xrot) -sin(xrot); 0 sin(xrot) cos(xrot)]
+	rot[2, :, :] = [cos(yrot) 0 sin(yrot); 0 1 0; -sin(yrot) 0 cos(yrot)]
+	rot[3, :, :] = [cos(zrot) -sin(zrot) 0; sin(zrot) cos(zrot) 0; 0 0 1]
+	return rot
 end
 
-# load in a pre-defined rotation
-function make_rotmats(filename::String)
-	temp = @chain begin
+# compute rotations from a pre-defined file of rotational params
+function make_rotations(filename::String)
+	return @chain begin
 		[h5read(filename, x) for x in ["xrot", "yrot", "zrot"]]
 		vcat(_...)
 		transpose
+		[compute_rotation_mats(x...) for x in eachrow(_)]
 	end
-	rotmats = zeros(nrot, 3, 3, 3)
-	for r in 1:nrot
-		rotmats[r, :, :, :] = make_rotmats(temp[r, :]...)
-	end
-	return rotmats
 end
 
-# wrap `make_rotmats(x, y, z)` with a randomly initialized set of rotational params
-function make_rotmats(nrot::Int)
-	rotations = @chain begin
-		randn(nrot * 3) * 2π
-		reshape(_, (nrot, 3))
+# compute rotations from a randomly initialized set of rotational params
+function make_rotations(nrot::Int)
+	return @chain begin
+		randn(nrot, 3) * 2π
+		[compute_rotation_mats(x...) for x in eachrow(_)]
 	end
-	return rotations
 end
 
-# take a trio of rotation matrices generated from the above fn, map it to the sphere
+# get rotated spherical coords from a trio of rot matrices generated from the above fn
 function rotate_on_sphere(rotmat::Array, sphere_coords::Matrix)
 	xrot_coords = rotmat[1, :, :] * sphere_coords'
 	xyrot_coords = rotmat[2, :, :] * xrot_coords
@@ -116,8 +111,19 @@ function dilate_or_contract_parcel!(
 	end
 end
 
-function process_rotation!(rot_verts::Vector{UInt16}, label::Int, verts::Vector, rotmat::Array, parcel_size::Int, tree::KDTree, hem::BrainStructure, neigh::VertexList, adjmat::AbstractMatrix)
-	xyzrot_coords = rotate_on_sphere(rotmat, sphere[trunc2full[verts], :])
+# perform a single rotation for a single parcel; modifies rot_verts in place
+function process_rotation!(
+		rot_verts::Vector{UInt16}, 
+		label::Int, 
+		verts::Vector, 
+		rotmats::Array, 
+		parcel_size::Int, 
+		tree::KDTree, 
+		hem::BrainStructure, 
+		neigh::VertexList, 
+		adjmat::AbstractMatrix
+	)
+	xyzrot_coords = rotate_on_sphere(rotmats, sphere[trunc2full[verts], :])
 	rotated_parcel = get_rotated_parcel(xyzrot_coords, tree, hem)
 	sum(rotated_parcel) > 0 || return
 	fill_in_gaps!(rotated_parcel, neigh)
@@ -138,7 +144,10 @@ function rotation_wrapper(parcel_file::String, rotmat::Array)
 		rotmat = rotations[r, :, :, :]
 		rot_verts = zeros(UInt16, nverts)
 		for i in 1:nparc
-			process_rotation!(rot_verts, i, verts[ids[i]], rotmat, sizes[i], trees[hems[i]], hems[i], neigh, adjmat) # median 6.65 ms
+			process_rotation!(
+				rot_verts, i, verts[ids[i]], rotmat, sizes[i], 
+				trees[hems[i]], hems[i], neigh, adjmat
+			) # median 6.65 ms
 		end
 		all_rot_verts[:, r] .= rot_verts
 	end
