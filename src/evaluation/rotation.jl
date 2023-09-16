@@ -111,43 +111,48 @@ function dilate_or_contract_parcel!(
 	end
 end
 
+@kwdef struct Parcel
+	id::UInt16
+	vertices::Vector
+	size::Int = length(vertices)
+	hem::BrainStructure = vertices[1] <= nverts_L_trunc ? L : R
+	spherical_projection::Matrix = sphere[trunc2full[vertices], :]
+end
+
+function read_parcels(filename::String)
+	@chain begin
+		CIFTI.load(filename)[LR][:]
+		convert.(UInt16, _)
+		Dict([p => Parcel(id = p, vertices = findall(_ .== p)) for p in setdiff(_, 0)])
+	end
+end
+
 # perform a single rotation for a single parcel; modifies rot_verts in place
 function process_rotation!(
 		rot_verts::Vector{UInt16}, 
-		label::Int, 
-		verts::Vector, 
+		parcel::Parcel,
 		rotmats::Array, 
-		parcel_size::Int, 
 		tree::KDTree, 
-		hem::BrainStructure, 
 		neigh::VertexList, 
 		adjmat::AbstractMatrix
 	)
-	xyzrot_coords = rotate_on_sphere(rotmats, sphere[trunc2full[verts], :])
-	rotated_parcel = get_rotated_parcel(xyzrot_coords, tree, hem)
+	xyzrot_coords = rotate_on_sphere(rotmats, parcel.spherical_projection)
+	rotated_parcel = get_rotated_parcel(xyzrot_coords, tree, parcel.hem)
 	sum(rotated_parcel) > 0 || return
 	fill_in_gaps!(rotated_parcel, neigh)
 	sum(rotated_parcel .&& baddata) < minsize || return
-	dilate_or_contract_parcel!(rotated_parcel, parcel_size, adjmat)
-	rot_verts[rotated_parcel] .= label
+	dilate_or_contract_parcel!(rotated_parcel, parcel.size, adjmat)
+	rot_verts[rotated_parcel] .= parcel.id
 end
 
-function rotation_wrapper(parcel_file::String, rotmat::Array)
-	parcels = @chain CIFTI.load(parcel_file)[LR] vec convert.(UInt16, _)
-	ids = sort(setdiff(parcels, 0))
-	verts = OrderedDict([p => findall(parcels .== p) for p in ids])
-	sizes = [length(verts[p]) for p in ids]
-	hems = [verts[p][1] <= nverts_L_trunc ? L : R for p in ids]
-	nparc = length(ids)
+function rotation_wrapper(parcels::Dict, rotations::Vector{Array{Float64, 3}})
+	ids = collect(keys(parcels))
 	all_rot_verts = zeros(UInt16, nverts, nrot)
 	Threads.@threads for r in 1:nrot
-		rotmat = rotations[r, :, :, :]
+		rotmats = rotations[r]
 		rot_verts = zeros(UInt16, nverts)
-		for i in 1:nparc
-			process_rotation!(
-				rot_verts, i, verts[ids[i]], rotmat, sizes[i], 
-				trees[hems[i]], hems[i], neigh, adjmat
-			) # median 6.65 ms
+		for parc in ids
+			process_rotation!(rot_verts, parcels[parc], rotmats, tree, neigh, adjmat)
 		end
 		all_rot_verts[:, r] .= rot_verts
 	end

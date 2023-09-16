@@ -10,8 +10,14 @@ edgemap = run_watershed(grads, minima, neigh)
 
 # rotations
 include("evaluation/rotation.jl")
-rotations = make_rotmats(rotations_file)
-test = rotation_wrapper(parcel_file, rotations) # 14 min on 6 cores
+rotations = make_rotations(rotations_file)
+parcels = read_parcels(parcel_file)
+rotated_parcels = rotation_wrapper(parcels, rotations) # 14 min on 6 cores
+
+#make_rotmats(x, y, z) -> compute_rotation_mats(...)
+#make_rotmats(filename) -> make_rotations(...)
+
+
 
 
 
