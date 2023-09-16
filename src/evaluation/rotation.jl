@@ -152,6 +152,7 @@ function rotation_wrapper(parcels::Dict, rotations::Vector{Array{Float64, 3}})
 		rotmats = rotations[r]
 		rot_verts = zeros(UInt16, nverts)
 		for id in parcel_ids
+			tree = trees[parcels[id].hem]
 			process_rotation!(rot_verts, parcels[id], rotmats, tree, neigh, adjmat)
 		end
 		all_rot_verts[:, r] .= rot_verts
