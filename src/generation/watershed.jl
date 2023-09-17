@@ -27,7 +27,8 @@ function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
 	end
 end
 
-function watershed_chunk(
+# edges arg will be modified in place
+function watershed_chunk!(
 		edges::AbstractMatrix, 
 		metric::AbstractMatrix, 
 		minima::BitMatrix, 
@@ -58,7 +59,7 @@ function run_watershed(
 	edges = zeros(UInt16, nverts, nverts)
 	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
 	ThreadsX.foreach(
-		chunk -> watershed_chunk(edges, metric, minima, neigh, chunk, heights), 
+		chunk -> watershed_chunk!(edges, metric, minima, neigh, chunk, heights), 
 		chunks
 	)
 	return mean(edges .== 0; dims = 2)[:]
