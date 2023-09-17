@@ -119,13 +119,21 @@ end
 	spherical_projection::Matrix = sphere[trunc2full[vertices], :]
 end
 
+function make_parcels(x)::Parcellation
+	Dict(
+		[p => Parcel(id = p, vertices = findall(x .== p)) for p in setdiff(x, 0)]
+	)
+end
+
 function read_parcels(filename::String)
 	@chain begin
 		CIFTI.load(filename)[LR][:]
 		convert.(UInt16, _)
-		Dict([p => Parcel(id = p, vertices = findall(_ .== p)) for p in setdiff(_, 0)])
+		make_parcels
 	end
 end
+
+const Parcellation = Dict{T, Parcel} where T <: Integer
 
 # perform a single rotation for a single parcel; modifies rot_verts in place
 function process_rotation!(
@@ -145,9 +153,9 @@ function process_rotation!(
 	rot_verts[rotated_parcel] .= parcel.id
 end
 
-function rotation_wrapper(parcels::Dict, rotations::Vector{Array{Float64, 3}})
+function rotation_wrapper(parcels::Parcellation, rotations::Vector{Array{Float64, 3}})
 	parcel_ids = collect(keys(parcels))
-	all_rot_verts = zeros(UInt16, nverts, nrot)
+	result = Vector{Parcellation}(undef, nrot)
 	Threads.@threads for r in 1:nrot
 		rotmats = rotations[r]
 		rot_verts = zeros(UInt16, nverts)
@@ -155,9 +163,9 @@ function rotation_wrapper(parcels::Dict, rotations::Vector{Array{Float64, 3}})
 			tree = trees[parcels[id].hem]
 			process_rotation!(rot_verts, parcels[id], rotmats, tree, neigh, adjmat)
 		end
-		all_rot_verts[:, r] .= rot_verts
+		result[r] = make_parcels(rot_verts)
 	end
-	return all_rot_verts
+	return result
 end
 
 
