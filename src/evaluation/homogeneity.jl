@@ -3,11 +3,6 @@ using LinearAlgebra
 using Statistics
 using NamedArrays
 
-function calc_homog(mat::Matrix)
-	eigenvals = eigvals(mat)
-	return maximum(eigenvals) / sum(eigenvals)
-end
-
 function make_cov_corr(dconn::Matrix, nverts_L::Int)
 	nelem = size(dconn, 1)
 	covL = cov(dconn[:, 1:nverts_L])
@@ -18,6 +13,11 @@ function make_cov_corr(dconn::Matrix, nverts_L::Int)
 	cov_corr[1:sizeL, 1:sizeL] .= covL
 	cov_corr[(sizeL + 1):end, (sizeL + 1):end] .= covR
 	return cov_corr
+end
+
+function calc_homog(mat::Matrix)
+	eigenvals = eigvals(mat)
+	return maximum(eigenvals) / sum(eigenvals)
 end
 
 function homogeneity_test(parcel::Parcel, cov_corr::Matrix; minsize::Int = 15)
