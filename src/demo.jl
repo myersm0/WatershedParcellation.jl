@@ -17,6 +17,15 @@ rotated_parcels = rotation_wrapper(parcels, rotations) # 14 min on 6 cores
 #make_rotmats(x, y, z) -> compute_rotation_mats(...)
 #make_rotmats(filename) -> make_rotations(...)
 
+include("evaluation/homogeneity.jl")
+dts = CIFTI.load("/Users/myersm/5000_all_sessions.dtseries.nii")[L]
+dconn = cor(dts')
+cov_corr = cov(dconn)
+real_homog = [test_parcel(p, cov_corr) for (k, p) in parcels]
+
+
+
+
 
 
 
