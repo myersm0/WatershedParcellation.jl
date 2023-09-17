@@ -4,11 +4,14 @@ authors = ["Michael Myers"]
 version = "1.0.0-DEV"
 
 [deps]
+CIFTI = "8026ff91-9e86-4f19-bd27-c139e9e8bf7a"
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 Cifti = "8ea9d706-23f2-4b5b-89c7-93bb3bdaf29f"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NamedArrays = "86f7a689-2022-50b4-a561-43c23ac3c673"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 ParallelDataTransfer = "2dcacdae-9679-587a-88bb-8b444fb7085b"
 SharedArrays = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
