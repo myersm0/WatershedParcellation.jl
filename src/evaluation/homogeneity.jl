@@ -20,7 +20,6 @@ function make_cov_corr(dconn::Matrix, nverts_L::Int)
 	return cov_corr
 end
 
-# 0.005165 - 0.0269 sec
 function homogeneity_test(parcel::Parcel, cov_corr::Matrix; minsize::Int = 15)
 	verts = parcel.vertices
 	return parcel.size < minsize ? NaN : calc_homog(cov_corr[verts, verts])
@@ -44,10 +43,5 @@ function homogeneity_test(
 	end
 	return hcat(result...)
 end
-
-
-
-
-
 
 

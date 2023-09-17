@@ -4,15 +4,6 @@ using JLD
 
 export make_adjmat, load_neighbors, load_gradients, find_minima
 
-function make_adjmat(neigh::VertexList)
-	adjmat = spzeros(Bool, nverts, nverts)
-	for v in 1:nverts
-		adjmat[v, v] = true
-		adjmat[v, neigh[v]] .= true
-	end
-	return adjmat
-end
-
 function load_gradients(filename::String)
 	grads = # TODO: load smoothed gradient here
 	return SharedArray(Matrix(grads))
@@ -20,6 +11,15 @@ end
 
 function load_neighbors()
 	return load("$assets_dir/neighbors.jld", "neigh")
+end
+
+function make_adjmat(neigh::VertexList)
+	adjmat = spzeros(Bool, nverts, nverts)
+	for v in 1:nverts
+		adjmat[v, v] = true
+		adjmat[v, neigh[v]] .= true
+	end
+	return adjmat
 end
 
 function find_minima(metric::AbstractMatrix, reachability::AbstractMatrix, v::Int)::BitMatrix
