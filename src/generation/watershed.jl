@@ -7,7 +7,7 @@ using ThreadsX
 export run_watershed
 
 # doesn't return a val, but modifies label and watershed_zones vectors in place
-function eval_at_height(h, label, edgemetric, watershed_zones, neighbors)
+function eval_at_height!(h, label, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin
 		(edgemetric .< h) .&& (label .== 0) .&& (watershed_zones .== 0)
 		findall
@@ -44,7 +44,7 @@ function watershed_chunk!(
 		labelnums = sortperm(randval)
 		label[labelpos] = labelnums
 		watershed_zones = zeros(nverts)
-		[eval_at_height(h, label, edgemetric, watershed_zones, neigh) for h in heights]
+		[eval_at_height!(h, label, edgemetric, watershed_zones, neigh) for h in heights]
 	end
 end
 
