@@ -6,9 +6,9 @@ adjmat = make_adjmat(neigh)
 minima = find_minima(grads, adjmat)
 edgemap = run_watershed(grads, minima, neigh)
 
-# TODO: I need to exclude baddata real parcels before evaluating
 
 # rotations
+# TODO: I need to exclude baddata real parcels before evaluating
 include("evaluation/rotation.jl")
 rotations = make_rotations(rotations_file)
 parcels = read_parcels(parcel_file)
@@ -22,6 +22,13 @@ dts = CIFTI.load("/Users/myersm/5000_all_sessions.dtseries.nii")[L]
 dconn = cor(dts')
 cov_corr = cov(dconn)
 real_homog = [test_parcel(p, cov_corr) for (k, p) in parcels]
+
+
+# parcel creation
+edgemap = CIFTI.load(
+	"/Users/myersm/.julia/dev/WatershedParcellation/test/data/5003_post-massage_wateredge_avg.dtseries.nii"
+)[LR][:]
+
 
 
 

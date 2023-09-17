@@ -29,7 +29,7 @@ end
 
 function watershed_chunk(
 		edges::AbstractMatrix, 
-		grads::AbstractMatrix, 
+		metric::AbstractMatrix, 
 		minima::BitMatrix, 
 		neigh::VertexList,
 		chunk::UnitRange, 
@@ -37,7 +37,7 @@ function watershed_chunk(
 	)
 	for i in chunk
 		label = @view edges[:, i] 
-		edgemetric = @view grads[:, i] 
+		edgemetric = @view metric[:, i] 
 		labelpos = findall(minima[:, i])
 		randval = randn(length(labelpos))
 		labelnums = sortperm(randval)
@@ -48,7 +48,7 @@ function watershed_chunk(
 end
 
 function run_watershed(
-		grads::Matrix, minima::BitMatrix, neigh::VertexList;
+		metric::Matrix, minima::BitMatrix, neigh::VertexList;
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
 	minheight = minimum(grads)
@@ -58,7 +58,7 @@ function run_watershed(
 	edges = zeros(UInt16, nverts, nverts)
 	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
 	ThreadsX.foreach(
-		chunk -> watershed_chunk(edges, grads, minima, neigh, chunk, heights), 
+		chunk -> watershed_chunk(edges, metric, minima, neigh, chunk, heights), 
 		chunks
 	)
 	return mean(edges .== 0; dims = 2)[:]

@@ -25,6 +25,7 @@ parcellation_name = "test"
 sphere_file = "$assets_dir/sphereLR.h5"
 rotations_file = "$assets_dir/../rotations.h5"
 parcel_file = "$assets_dir/../test_parcels.dtseries.nii"
+dmat_file = "$assets_dir/Cifti_geo_distances_xhemisphere_large_uint8.mat"
 
 
 
