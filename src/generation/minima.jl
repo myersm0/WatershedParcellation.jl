@@ -4,8 +4,8 @@ using JLD
 
 export find_minima
 
-function find_minima(metric::AbstractMatrix, A³::AbstractMatrix, v::Int)
-	neighbors = setdiff(findall(A³[v, :] .!= 0), v)
+function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)
+	neighbors = setdiff(findall(Aᵖ[v, :] .!= 0), v)
 	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
 	b = @view metric[neighbors, :]
 	return all(b - a .> 0; dims = 1)

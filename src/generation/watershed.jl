@@ -56,9 +56,9 @@ Run the watershed algorithm on `metric`, using its `minima` (as returned from
 the adjacency list `neighbors`.
 
 Some optional parameters can be tuned:
-- `nsteps`: the number of bins into which to discretize the `metric`'s heights
-- `fracmaxh`: a scaling factor to determine the ceiling on height values to evaluate
-- `nchunks`: controls the distribution of work to available processing threads
+- `nsteps`: the number of bins into which to discretize the heights (default `400`)
+- `fracmaxh`: a scaling factor to determine a ceiling on height values (default `1.0`)
+- `nchunks`: split up the work into this many chunks for multithreading (default `64`)
 """
 function run_watershed(
 		metric::Matrix, minima::BitMatrix, neigh::VertexList;
