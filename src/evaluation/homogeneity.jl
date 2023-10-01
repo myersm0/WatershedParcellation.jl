@@ -48,9 +48,9 @@ to this function, and the `Parcellation`s passed each time may not exactly share
 all of them. See the method below that accepts a `Vector{Parcellation{T}}`.)
 """
 function homogeneity_test(
-		px::Parcellation, cov_corr::Matrix; 
+		px::Parcellation{T}, cov_corr::Matrix; 
 		minsize::Int = 15, ks::Vector{T} = collect(keys(px))
-	)
+	) where T
 	result = NamedArray(zeros(length(ks)) * NaN, (ks,))
 	for k in intersect(ks, keys(p))
 		result[Name(k)] = homogeneity_test(px[k], cov_corr; minsize = minsize)
@@ -66,7 +66,7 @@ a `NamedMatrix{T}` where parcel keys are given along the rows.
 """
 function homogeneity_test(
 		vp::Vector{Parcellation{T}}, cov_corr::Matrix; minsize::Int = 15, ks::Vector{T}
-	)
+	) where T
 	ntests = length(vp)
 	result = Vector{NamedVector}(undef, ntests)
 	Threads.@threads for i in 1:ntests

@@ -6,6 +6,8 @@ version = "1.0.0-DEV"
 [deps]
 CIFTI = "8026ff91-9e86-4f19-bd27-c139e9e8bf7a"
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
+CorticalParcels = "40903625-a1ea-44c8-b7f6-e840be33f0ed"
+CorticalSurfaces = "db9f6742-bc38-4697-955a-0a5dbec8c5c6"
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"

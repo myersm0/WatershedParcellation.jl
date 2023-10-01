@@ -33,3 +33,41 @@ function rotate_on_sphere(rotmat::Array, sphere_coords::Matrix)
 	return rotmat[3, :, :] * xyrot_coords
 end
 
+# perform a single rotation for a single parcel
+function process_rotation(
+		px::Parcellation{T},
+		id::T,
+		surf::Hemisphere,
+		rotmats::Array, 
+		tree::KDTree, 
+		A::AbstractMatrix,
+		neigh::Vector{Vector{Int}}
+	)
+	θcoords = rotate_on_sphere(rotmats, coordinates(surf)[vertices(px[id]), :])
+	θp = Parcel(θcoords, tree)
+	size(θp) > 0 || return
+	close!(θp, neigh)
+	overlap(θp, baddata) < 15 || return Parcel(size(surf))
+	resize!(θp, size(px[id]); A = A, neighbors = neigh)
+	return θp
+end
+
+function rotation_wrapper(
+		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}
+	) where T
+	parcel_ids = collect(keys(px))
+	nrot = size(rotations, 1)
+	surf = px.surface
+	result = Vector{Parcellation{T}}(undef, nrot)
+	Threads.@threads for r in 1:nrot
+		rotmats = rotations[r]
+		temp = Dict{T, Parcel}()
+		for id in parcel_ids
+			temp[id] = process_rotation(px, id, surf, rotmats, tree, A, neigh)
+		end
+		result[r] = Parcellation(surf, temp)
+	end
+	return result
+end
+
+
