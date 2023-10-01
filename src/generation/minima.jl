@@ -2,38 +2,20 @@
 using SparseArrays
 using JLD
 
-export make_adjmat, load_neighbors, load_gradients, find_minima
+export find_minima
 
-function load_gradients(filename::String)
-	grads = # TODO: load smoothed gradient here
-	return SharedArray(Matrix(grads))
-end
-
-function load_neighbors()
-	return load("$assets_dir/neighbors.jld", "neigh")
-end
-
-function make_adjmat(neigh::VertexList)
-	adjmat = spzeros(Bool, nverts, nverts)
-	for v in 1:nverts
-		adjmat[v, v] = true
-		adjmat[v, neigh[v]] .= true
-	end
-	return adjmat
-end
-
-function find_minima(metric::AbstractMatrix, reachability::AbstractMatrix, v::Int)::BitMatrix
-	neighbors = setdiff(findall(reachability[v, :] .!= 0), v)
+function find_minima(metric::AbstractMatrix, A³::AbstractMatrix, v::Int)
+	neighbors = setdiff(findall(A³[v, :] .!= 0), v)
 	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
 	b = @view metric[neighbors, :]
 	return all(b - a .> 0; dims = 1)
 end
 
-function find_minima(grads::AbstractMatrix, adjmat::SparseMatrixCSC)
-	reachability = adjmat ^ 3 # for each vert, identify 3-step-reachable vertices
+function find_minima(metric::AbstractMatrix, A::SparseMatrixCSC; power::Int = 3)
+	nverts = size(grads, 1)
 	minima = BitMatrix(undef, nverts, nverts)
 	Threads.@threads for v in 1:nverts
-		minima[v, :] = find_minima(grads, reachability, v)
+		minima[v, :] = find_minima(metric, A^power, v)
 	end
 	return minima
 end

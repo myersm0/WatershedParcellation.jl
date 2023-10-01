@@ -48,10 +48,23 @@ function watershed_chunk!(
 	end
 end
 
+"""
+    run_watershed(metric, minima, neighbors)
+
+Run the watershed algorithm on `metric`, using its `minima` (as returned from 
+`find_minima()`) as initialization points and guided by the topology given in
+the adjacency list `neighbors`.
+
+Some optional parameters can be tuned:
+- `nsteps`: the number of bins into which to discretize the `metric`'s heights
+- `fracmaxh`: a scaling factor to determine the ceiling on height values to evaluate
+- `nchunks`: controls the distribution of work to available processing threads
+"""
 function run_watershed(
 		metric::Matrix, minima::BitMatrix, neigh::VertexList;
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
+	@assert all([nsteps, nchunks, fracmaxh] .> 0)
 	minheight = minimum(grads)
 	maxheight = maximum(grads) * fracmaxh
 	heights = range(minheight, maxheight, length = nsteps)
