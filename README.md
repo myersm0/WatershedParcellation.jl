@@ -23,6 +23,7 @@ Currently missing in this implementation, and not planned for the near future, i
 
 As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the middle of October 2023):
 
+| | |
 |-|----------------------------------------------------|
 |☑|Single-hemisphere functionality|
 |☐|Bilateral functionality|
