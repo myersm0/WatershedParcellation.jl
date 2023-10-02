@@ -1,5 +1,5 @@
 # WatershedParcellation
-This package introduces a high performance, pure Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/). It's based on their original MATLAB code and has been tested to produce virtually identical results.
+This package introduces a high performance, pure Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their originally MATLAB code. It builds upon recently registered packages [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
 Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
@@ -14,7 +14,7 @@ For working with a single-hemisphere only, you should be able to reduce the RAM 
 In terms of the basic stages of operations, the below chart summarizes what's currently ready for use:
 
 | |Functionality|
-|-|-----------------------------------------------------------------|
+|-|:----------------------------------------------------------------|
 |☑|The core watershed algorithm to generate edge maps from gradients|
 |☐|Flooding of edge map basins to generate parcels|
 |☑|Homogeneity evaluation and null-model testing via rotation|
