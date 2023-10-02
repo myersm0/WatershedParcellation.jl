@@ -1,4 +1,6 @@
 
+export make_cov_corr, homogeneity_test
+
 """
 	 make_cov_corr(mat, hem)
 
