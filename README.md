@@ -1,12 +1,13 @@
 # WatershedParcellation
-This package introduces a high performance, pure Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their originally MATLAB code. It builds upon recently registered packages [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
+This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
 Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
 - 32 GB RAM (required)
-- 8 CPU cores (recommended)
+- 4 to 8 CPU cores (recommended)
+- Julia v1.8.3+
 
 For working with a single-hemisphere only, you should be able to reduce the RAM usage to 12 GB.
 
@@ -38,7 +39,7 @@ Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
 ```
 
 ## Performance
-Approximate execution times noted below were achieved in running the methods on a single hemisphere in 32k resolution, on a Macbook Pro laptop with 8 Apple M2 cores.
+Approximate execution times noted below were achieved in running the methods on a single hemisphere in 32k resolution, on a Macbook Pro with 8 Apple M2 cores.
 |Processing stage|Benchmark|
 |-----------------------------------------|---------|
 |Finding local minima in the gradient maps|4 minutes|
