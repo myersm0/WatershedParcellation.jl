@@ -15,7 +15,7 @@ Given a matrix `metric`, such as a gradient matrix, find local minima within a
 window of size `radius` steps, guided by the topology given in adjaceny matrix `A`
 """
 function find_minima(metric::AbstractMatrix, A::SparseMatrixCSC; power::Int = 3)
-	nverts = size(grads, 1)
+	nverts = size(metric, 1)
 	minima = BitMatrix(undef, nverts, nverts)
 	Threads.@threads for v in 1:nverts
 		minima[v, :] = find_minima(metric, A^power, v)
