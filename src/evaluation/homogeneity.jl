@@ -3,16 +3,10 @@ using LinearAlgebra
 using Statistics
 using NamedArrays
 
-function make_cov_corr(dconn::Matrix, nverts_L::Int)
+function make_cov_corr(dconn::Matrix, hem::Hemisphere)
 	nelem = size(dconn, 1)
-	covL = cov(dconn[:, 1:nverts_L])
-	covR = cov(dconn[:, (nverts_L + 1):end])
-	sizeL = size(covL, 1)
-	sizeR = size(covR, 1)
-	cov_corr = zeros(nelem, nelem)
-	cov_corr[1:sizeL, 1:sizeL] .= covL
-	cov_corr[(sizeL + 1):end, (sizeL + 1):end] .= covR
-	return cov_corr
+	inds = collapse(vertices(hem, Bilateral(), Exclusive()), hem)
+	return cov(dconn[:, inds])
 end
 
 """
@@ -32,8 +26,10 @@ end
 Test homogeneity of a `Parcel` with respect to a covariance of correlations matrix,
 or return `NaN` if the parcel is smaller than `minsize`
 """
-function homogeneity_test(p::Parcel, cov_corr::Matrix; minsize::Int = 15)
-	verts = vertices(p)
+function homogeneity_test(
+		p::Parcel, cov_corr::Matrix, hem::Hemisphere; minsize::Int = 15
+	)
+	verts = collapse(vertices(p), hem)
 	return length(verts) < minsize ? NaN : homogeneity(cov_corr[verts, verts])
 end
 
@@ -48,12 +44,12 @@ to this function, and the `Parcellation`s passed each time may not exactly share
 all of them. See the method below that accepts a `Vector{Parcellation{T}}`.)
 """
 function homogeneity_test(
-		px::Parcellation{T}, cov_corr::Matrix; 
+		px::Parcellation{T}, cov_corr::Matrix, hem::Hemisphere; 
 		minsize::Int = 15, ks::Vector{T} = collect(keys(px))
 	) where T
 	result = NamedArray(zeros(length(ks)) * NaN, (ks,))
-	for k in intersect(ks, keys(p))
-		result[Name(k)] = homogeneity_test(px[k], cov_corr; minsize = minsize)
+	for k in intersect(ks, keys(px))
+		result[Name(k)] = homogeneity_test(px[k], cov_corr, hem; minsize = minsize)
 	end
 	return result
 end
@@ -65,14 +61,17 @@ Iterate over a `Vector` of `Parcellation`s, testing the homogeneity of each. Ret
 a `NamedMatrix{T}` where parcel keys are given along the rows.
 """
 function homogeneity_test(
-		vp::Vector{Parcellation{T}}, cov_corr::Matrix; minsize::Int = 15, ks::Vector{T}
+		vp::Vector{Parcellation{T}}, cov_corr::Matrix, hem::Hemisphere; 
+		minsize::Int = 15, ks::Vector{T}
 	) where T
 	ntests = length(vp)
-	result = Vector{NamedVector}(undef, ntests)
-	Threads.@threads for i in 1:ntests
-		result[i] = homogeneity_test(vp[i], cov_corr; minsize = minsize, ks = ks)
+	result = NamedArray(
+		zeros(length(ks), ntests), (ks, collect(1:ntests)), ("parcel", "iteration")
+	)
+	for i in 1:ntests
+		result[:, i] = homogeneity_test(vp[i], cov_corr, hem; minsize = minsize, ks = ks)
 	end
-	return hcat(result...)
+	return result
 end
 
 

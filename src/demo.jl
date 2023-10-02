@@ -87,6 +87,13 @@ scatter!(ax, coordinates(surf)[vertices(θp), :], color = "purple")
 close!(θp, neigh)
 scatter!(ax, coordinates(surf)[vertices(θp), :], color = "red")
 
+dconn = load("$data_dir/5003_pre-massage.dconn_L.jld", "dconn")
+cov_corr = make_cov_corr(dconn, hem)
+dconn = zeros(Float32, 2, 2)
+GC.gc()
+
+
+
 
 #make_rotmats(x, y, z) -> compute_rotation_mats(...)
 #make_rotmats(filename) -> make_rotations(...)
