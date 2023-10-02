@@ -41,8 +41,9 @@ Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
 Approximate execution times noted below were achieved in running the methods on a single hemisphere in 32k resolution, on a Macbook Pro laptop with 8 Apple M2 cores.
 |Processing stage|Benchmark|
 |-----------------------------------------|---------|
-|Generation of an edge map from gradients|15 minutes|
-|Generation 1000 rotated parcellations|7 seconds|
+|Finding local minima in the gradient maps|4 minutes|
+|Generation of an edge map from gradients|3 minutes|
+|Generation of 1000 rotated parcellations|7 seconds|
 |Homogeneity testing of 1000 parcellations|90 seconds|
 
 ## Usage

@@ -42,7 +42,7 @@ function process_rotation(
 		tree::KDTree, 
 		A::AbstractMatrix,
 		neigh::Vector{Vector{Int}}
-	)
+	) where T
 	θcoords = rotate_on_sphere(rotmats, coordinates(surf)[vertices(px[id]), :])
 	θp = Parcel(θcoords, tree)
 	size(θp) > 0 || return
