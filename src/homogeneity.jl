@@ -1,8 +1,17 @@
 
-function make_cov_corr(dconn::Matrix, hem::Hemisphere)
-	nelem = size(dconn, 1)
-	inds = collapse(vertices(hem, Bilateral(), Exclusive()), hem)
-	return cov(dconn[:, inds])
+"""
+	 make_cov_corr(mat, hem)
+
+Make a covariance matrix with indices aligned with those of a Hemisphere struct `hem`
+"""
+function make_cov_corr(mat::Matrix, hem::Hemisphere)
+	nelem = size(mat, 1)
+	if nelem == size(hem, Inclusive())
+		inds = vertices(hem)
+	else
+		inds = collapse(vertices(hem, Exclusive()), hem)
+	end
+	return cov(mat[:, inds])
 end
 
 """

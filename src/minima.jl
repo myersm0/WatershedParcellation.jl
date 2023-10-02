@@ -8,6 +8,12 @@ function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)
 	return all(b - a .> 0; dims = 1)
 end
 
+"""
+    find_minima(metric, A; power = 3)
+
+Given a matrix `metric`, such as a gradient matrix, find local minima within a
+window of size `radius` steps, guided by the topology given in adjaceny matrix `A`
+"""
 function find_minima(metric::AbstractMatrix, A::SparseMatrixCSC; power::Int = 3)
 	nverts = size(grads, 1)
 	minima = BitMatrix(undef, nverts, nverts)
