@@ -1,40 +1,66 @@
 # WatershedParcellation
+This package introduces a high performance, pure Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/). It's based on their original MATLAB code and has been tested to produce virtually identical results.
 
-Under development. I aim to release my code here over the next several days and weeks, both in the form of a Julia module and as a standalone executable, as adapted from the original MATLAB code by Tim Laumann and Evan Gordon from their 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/).
-
-Our soon-to-be published results, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation).
+Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
 ## System requirements
-32 GB RAM (required), 8 CPU cores (recommended).
+The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
+- 32 GB RAM (required)
+- 8 CPU cores (recommended)
 
-## Roadmap
-1. The core watershed algorithm to generate edge maps from gradients (status: almost ready to use)
-2. Homogeneity evaluation and null-model testing via rotation (ETA: week of Sept 17th)
-3. Code to get from connectivity data to gradients (ETA: week of Sept 24th)
+For working with a single-hemisphere only, you should be able to reduce the RAM usage to 12 GB.
 
-The basic order of operations is gradients -> watershed -> homogeneity testing. But the creation of gradients has several external dependencies and process complexities so I'm postponing the release of that step.
+## Development status
+In terms of the basic stages of operations, the below chart summarizes what's currently ready for use:
+
+| |Functionality|
+|-|-----------------------------------------------------------------|
+|☑|The core watershed algorithm to generate edge maps from gradients|
+|☐|Flooding of edge map basins to generate parcels|
+|☑|Homogeneity evaluation and null-model testing via rotation|
+
+Currently missing in this implementation, and not planned for the near future, is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, doing that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. I will soon add specifics about the exact steps we carried out in that regard, and will also consider adding in some extra code to wrap the process, if time allows.
+
+As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the middle of October 2023):
+|-|----------------------------------------------------|
+|☑|Single-hemisphere functionality|
+|☐|Bilateral functionality|
+|☐|Exclusion of low-signal regions|
+|☐|Support for loading of spatial data from GIFTI files|
+|☐|A full demo|
 
 ## Installation
-I aim to submit this package to the Julia general registry. Until then, to install run the following from within a Julia session:
+From within a Julia session:
 ```
 using Pkg
 Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
 ```
 
+## Performance
+Approximate execution times noted below were achieved in running the methods on a single hemisphere in 32k resolution, on a Macbook Pro laptop with 8 Apple M2 cores.
+|-----------------------------------------|---------|
+|Generation of an edge map from gradients|15 minutes|
+|Generation 1000 rotated parcellations|7 seconds|
+|Homogeneity testing of 1000 parcellations|90 seconds|
+
 ## Usage
-### Running the watershed algorithm to produce an edge map
 Before loading Julia, you need to inform it of the number of available processing cores by setting an environment variable, for example `export JULIA_NUM_THREADS=8` in bash. Then, within Julia:
-
 ```
+using CorticalSurfaces
+using CorticalParcels
 using WatershedParcellation
-
-grads = load_gradients(filename) # not yet implemented
-neigh = load_neighbors() # 5 seconds
-adjmat = make_adjmat(neigh) # 30 seconds
-minima = find_minima(grads, adjmat) # 4 minutes
-edgemap = run_watershed(grads, minima, neigh) # 30 minutes
 ```
 
-Approximate execution times noted above were achieved on a CentOS 7 Linux machine using 8 cores (Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz).
+### Running the watershed algorithm to produce an edge map
+Details coming soon.
+
+### Flooding basins in the edge map to produce parcels
+Not yet implemented. Check back soon.
+
+### Generating a rotation-based null model
+Details coming soon.
+
+### Homogeneity evalaution
+Details coming soon.
 
 [![Build Status](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml?query=branch%3Amain)
