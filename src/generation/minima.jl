@@ -1,7 +1,4 @@
 
-using SparseArrays
-using JLD
-
 export find_minima
 
 function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)

@@ -1,8 +1,4 @@
 
-using LinearAlgebra
-using Statistics
-using NamedArrays
-
 function make_cov_corr(dconn::Matrix, hem::Hemisphere)
 	nelem = size(dconn, 1)
 	inds = collapse(vertices(hem, Bilateral(), Exclusive()), hem)

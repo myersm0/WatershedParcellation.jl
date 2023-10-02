@@ -1,9 +1,4 @@
 
-using Statistics: mean
-using Chain
-using StatsBase: sample
-using ThreadsX
-
 export run_watershed
 
 # doesn't return a val, but modifies label and watershed_zones vectors in place
