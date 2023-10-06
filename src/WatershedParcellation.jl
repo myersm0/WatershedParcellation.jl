@@ -15,7 +15,7 @@ using Statistics
 using StatsBase: sample
 using ThreadsX
 
-const assets_dir = joinpath(@__DIR__, "../data/")
+const assets_dir = joinpath(@__DIR__, "..", "data")
 
 include("minima.jl")
 include("watershed.jl")
