@@ -11,7 +11,7 @@ using LinearAlgebra
 using NamedArrays
 using NearestNeighbors
 using SparseArrays
-using Statistics
+using Statistics: cov, mean
 using StatsBase: sample
 using ThreadsX
 

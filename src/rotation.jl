@@ -37,24 +37,23 @@ end
 
 # perform a single rotation for a single parcel
 function process_rotation(
-		px::Parcellation{T},
-		id::T,
-		surf::Hemisphere,
+		p::Parcel,
 		rotmats::Array, 
 		tree::KDTree, 
-		A::AbstractMatrix,
-		neigh::Vector{Vector{Int}}
-	) where T
-	θcoords = rotate_on_sphere(rotmats, coordinates(surf)[vertices(px[id]), :])
-	θp = Parcel(px.surface, θcoords, tree)
-	size(θp) > 0 || return
-	close!(θp)
-	resize!(θp, size(px[id]))
-	return θp
+		neighbors::AdjacencyList,
+		A::AdjacencyMatrix
+	)
+	coordsθ = rotate_on_sphere(rotmats, coordinates(surf)[vertices(p), :])
+	pθ = Parcel(p.surface, coordsθ, tree)
+	size(pθ) > 0 || return
+	close!(pθ, neigh)
+	resize!(pθ, size(p), A, neigh)
+	return pθ
 end
 
 function rotation_wrapper(
-		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}, neigh::Vector{Vector{Int}}, tree::KDTree
+		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}; 
+		neighbors::AdjacencyList, A::AdjacencyMatrix, tree::KDTree
 	) where T
 	parcel_ids = collect(keys(px))
 	nrot = size(rotations, 1)
@@ -64,11 +63,24 @@ function rotation_wrapper(
 		rotmats = rotations[r]
 		temp = Dict{T, Parcel}()
 		for id in parcel_ids
-			temp[id] = process_rotation(px, id, surf, rotmats, tree, A, neigh)
+			temp[id] = process_rotation(px, id, surf, rotmats, tree, neighbors, A)
 		end
 		result[r] = Parcellation(surf, temp)
 	end
 	return result
 end
+
+function rotation_wrapper(
+		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}, tree::KDTree
+	)
+	haskey(px.surface.appendix, :A) || 
+		error("Operation requires adjacency matrix :A")
+	haskey(px.surface.appendix, :neighbors) || 
+		error("Operation requires adjacency list :neighbors")
+	neighbors = px.surface[:neighbors]
+	A = px.surface[:A]
+	return rotation_wrapper(px, rotations; neighbors = neighbors, A = A, tree = tree)
+end
+
 
 

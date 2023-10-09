@@ -27,7 +27,7 @@ function watershed_chunk!(
 		edges::AbstractMatrix, 
 		metric::AbstractMatrix, 
 		minima::BitMatrix, 
-		neigh::Vector{Vector{Int}},
+		neigh::AdjacencyMatrix,
 		chunk::UnitRange, 
 		heights::StepRangeLen
 	)
@@ -57,7 +57,7 @@ Some optional parameters can be tuned:
 - `nchunks`: split up the work into this many chunks for multithreading (default `64`)
 """
 function run_watershed(
-		metric::Matrix, minima::BitMatrix, neighbors::Vector{Vector{Int}};
+		metric::Matrix, minima::BitMatrix, neighbors::AdjacencyList;
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
 	@assert all([nsteps, nchunks, fracmaxh] .> 0)
