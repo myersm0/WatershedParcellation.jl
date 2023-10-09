@@ -46,16 +46,15 @@ function process_rotation(
 		neigh::Vector{Vector{Int}}
 	) where T
 	θcoords = rotate_on_sphere(rotmats, coordinates(surf)[vertices(px[id]), :])
-	θp = Parcel(θcoords, tree)
+	θp = Parcel(px.surface, θcoords, tree)
 	size(θp) > 0 || return
-	close!(θp, neigh)
-	overlap(θp, baddata) < 15 || return Parcel(size(surf))
-	resize!(θp, size(px[id]); A = A, neighbors = neigh)
+	close!(θp)
+	resize!(θp, size(px[id]))
 	return θp
 end
 
 function rotation_wrapper(
-		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}
+		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}, neigh::Vector{Vector{Int}}, tree::KDTree
 	) where T
 	parcel_ids = collect(keys(px))
 	nrot = size(rotations, 1)
