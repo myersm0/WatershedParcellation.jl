@@ -27,7 +27,7 @@ function watershed_chunk!(
 		edges::AbstractMatrix, 
 		metric::AbstractMatrix, 
 		minima::BitMatrix, 
-		neigh::AdjacencyMatrix,
+		neigh::AdjacencyList,
 		chunk::UnitRange, 
 		heights::StepRangeLen
 	)
@@ -61,8 +61,8 @@ function run_watershed(
 		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
 	)
 	@assert all([nsteps, nchunks, fracmaxh] .> 0)
-	minheight = minimum(grads)
-	maxheight = maximum(grads) * fracmaxh
+	minheight = minimum(metric)
+	maxheight = maximum(metric) * fracmaxh
 	heights = range(minheight, maxheight, length = nsteps)
 	nverts = length(neighbors)
 	chunk_size = Int(floor(nverts / nchunks))

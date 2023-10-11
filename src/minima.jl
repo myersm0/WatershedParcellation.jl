@@ -23,5 +23,15 @@ function find_minima(metric::AbstractMatrix, A::SparseMatrixCSC; power::Int = 3)
 	return minima
 end
 
+function find_minima(metric::AbstractMatrix, hem::Hemisphere; power::Int = 3)
+	haskey(hem, :A) || error("Hemisphere must contain adjacency matrix :A")
+	m, n = size(metric)
+	allequal([m, n]) || error("`metric` must be a square Matrix")
+	if m == size(hem, Inclusive())
+		return find_minima(metric, hem[:A]; power = power)
+	elseif m == size(hem, Exclusive())
+		return find_minima(metric, hem[:A, Exclusive()]; power = power)
+	end
+end
 
 

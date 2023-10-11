@@ -71,7 +71,7 @@ function rotation_wrapper(
 end
 
 function rotation_wrapper(
-		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}, tree::KDTree
+		px::Parcellation, rotations::Vector{Array{Float64, 3}}, tree::KDTree
 	)
 	haskey(px.surface.appendix, :A) || 
 		error("Operation requires adjacency matrix :A")

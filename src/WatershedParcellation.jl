@@ -17,6 +17,8 @@ using ThreadsX
 
 const assets_dir = joinpath(@__DIR__, "..", "data")
 
+import CorticalSurfaces: AdjacencyList, AdjacencyMatrix, DistanceMatrix
+
 include("minima.jl")
 include("watershed.jl")
 include("rotation.jl")
