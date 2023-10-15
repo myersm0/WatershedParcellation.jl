@@ -11,8 +11,7 @@ using LinearAlgebra
 using NamedArrays
 using NearestNeighbors
 using SparseArrays
-using Statistics: cov, mean
-using StatsBase: sample
+using StatsBase: cov, mean, quantile, sample
 using ThreadsX
 
 const assets_dir = joinpath(@__DIR__, "..", "data")
