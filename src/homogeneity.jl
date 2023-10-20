@@ -36,7 +36,7 @@ or return `NaN` if the parcel fails to satisfy inclusion `criteria`
 function homogeneity_test(
 		p::Parcel, cov_corr::Matrix; criteria::Function = x -> true
 	)
-	verts = @view collapse(vertices(p), p.surface)
+	verts = collapse(vertices(p), p.surface)
 	return criteria(p, verts) ? homogeneity(cov_corr[verts, verts]) : NaN
 end
 
@@ -52,7 +52,7 @@ all of them. See the method below that accepts a `Vector{Parcellation{T}}`.)
 """
 function homogeneity_test(
 		px::Parcellation{T}, cov_corr::Matrix; 
-		ks::Vector{T} = collect(keys(px), criteria::Function = x -> true)
+		ks::Vector{T} = collect(keys(px)), criteria::Function = x -> true
 	) where T
 	result = NamedArray(zeros(length(ks)) * NaN, (ks,))
 	for k in intersect(ks, keys(px))
