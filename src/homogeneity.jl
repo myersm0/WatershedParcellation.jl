@@ -31,17 +31,17 @@ end
 	 homogeneity_test(p, cov_corr; minsize = 15)
 
 Test homogeneity of a `Parcel` with respect to a covariance of correlations matrix,
-or return `NaN` if the parcel is smaller than `minsize`
+or return `NaN` if the parcel fails to satisfy inclusion `criteria`
 """
 function homogeneity_test(
-		p::Parcel, cov_corr::Matrix, hem::Hemisphere; minsize::Int = 15
+		p::Parcel, cov_corr::Matrix; criteria::Function = x -> true
 	)
-	verts = collapse(vertices(p), hem)
-	return length(verts) < minsize ? NaN : homogeneity(cov_corr[verts, verts])
+	verts = @view collapse(vertices(p), p.surface)
+	return criteria(p, verts) ? homogeneity(cov_corr[verts, verts]) : NaN
 end
 
 """
-	 homogeneity_test(px, cov_corr; minsize = 15)
+	 homogeneity_test(px, cov_corr; ks, criteria)
 
 Iterate over `Parcel`s within a `Parcellation`, testing the homogeneity of each.
 
@@ -51,32 +51,32 @@ to this function, and the `Parcellation`s passed each time may not exactly share
 all of them. See the method below that accepts a `Vector{Parcellation{T}}`.)
 """
 function homogeneity_test(
-		px::Parcellation{T}, cov_corr::Matrix, hem::Hemisphere; 
-		minsize::Int = 15, ks::Vector{T} = collect(keys(px))
+		px::Parcellation{T}, cov_corr::Matrix; 
+		ks::Vector{T} = collect(keys(px), criteria::Function = x -> true)
 	) where T
 	result = NamedArray(zeros(length(ks)) * NaN, (ks,))
 	for k in intersect(ks, keys(px))
-		result[Name(k)] = homogeneity_test(px[k], cov_corr, hem; minsize = minsize)
+		result[Name(k)] = homogeneity_test(px[k], cov_corr; criteria = criteria)
 	end
 	return result
 end
 
 """
-	 homogeneity_test(px, cov_corr; minsize = 15)
+	 homogeneity_test(px, cov_corr; ks, criteria)
 
 Iterate over a `Vector` of `Parcellation`s, testing the homogeneity of each. Returns
 a `NamedMatrix{T}` where parcel keys are given along the rows.
 """
 function homogeneity_test(
-		vp::Vector{Parcellation{T}}, cov_corr::Matrix, hem::Hemisphere; 
-		minsize::Int = 15, ks::Vector{T}
+		vp::Vector{Parcellation{T}}, cov_corr::Matrix;
+		ks::Vector{T}, criteria::Function = x -> true
 	) where T
 	ntests = length(vp)
 	names = (ks, collect(1:ntests))
 	dimnames = ("parcel", "iteration")
 	result = NamedArray(zeros(length(ks), ntests), names, dimnames)
 	for i in 1:ntests
-		result[:, i] = homogeneity_test(vp[i], cov_corr, hem; minsize = minsize, ks = ks)
+		result[:, i] = homogeneity_test(vp[i], cov_corr; ks = ks, criteria = criteria)
 	end
 	return result
 end
