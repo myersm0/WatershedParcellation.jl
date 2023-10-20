@@ -72,9 +72,9 @@ function homogeneity_test(
 		minsize::Int = 15, ks::Vector{T}
 	) where T
 	ntests = length(vp)
-	result = NamedArray(
-		zeros(length(ks), ntests), (ks, collect(1:ntests)), ("parcel", "iteration")
-	)
+	names = (ks, collect(1:ntests))
+	dimnames = ("parcel", "iteration")
+	result = NamedArray(zeros(length(ks), ntests), names, dimnames)
 	for i in 1:ntests
 		result[:, i] = homogeneity_test(vp[i], cov_corr, hem; minsize = minsize, ks = ks)
 	end

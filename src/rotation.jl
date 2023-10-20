@@ -77,8 +77,8 @@ function rotation_wrapper(
 		error("Operation requires adjacency matrix :A")
 	haskey(px.surface.appendix, :neighbors) || 
 		error("Operation requires adjacency list :neighbors")
-	neighbors = px.surface[:neighbors]
-	A = px.surface[:A]
+	neighbors = @views px.surface[:neighbors]
+	A = @views px.surface[:A]
 	return rotation_wrapper(px, rotations; neighbors = neighbors, A = A, tree = tree)
 end
 
