@@ -43,7 +43,7 @@ function process_rotation(
 		neighbors::AdjacencyList,
 		A::AdjacencyMatrix
 	)
-	coordsθ = rotate_on_sphere(rotmats, coordinates(surf)[vertices(p), :])
+	coordsθ = rotate_on_sphere(rotmats, coordinates(p.surface)[vertices(p), :])
 	pθ = Parcel(p.surface, coordsθ, tree)
 	size(pθ) > 0 || return
 	close!(pθ, neigh)
@@ -63,7 +63,7 @@ function rotation_wrapper(
 		rotmats = rotations[r]
 		temp = Dict{T, Parcel}()
 		for id in parcel_ids
-			temp[id] = process_rotation(px, id, surf, rotmats, tree, neighbors, A)
+			temp[id] = process_rotation(px[id], rotmats, tree, neighbors, A)
 		end
 		result[r] = Parcellation(surf, temp)
 	end

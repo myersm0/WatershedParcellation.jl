@@ -1,4 +1,6 @@
 
+using StatsBase: std
+
 export make_cov_corr, homogeneity_test
 
 """
@@ -14,6 +16,10 @@ function make_cov_corr(mat::Matrix, hem::Hemisphere)
 		inds = collapse(vertices(hem, Exclusive()), hem)
 	end
 	return cov(mat[:, inds])
+end
+
+function default_criteria(p::Parcel)
+	return sum(p.membership .& p.surface.medial_wall) == 0
 end
 
 """
@@ -34,10 +40,10 @@ Test homogeneity of a `Parcel` with respect to a covariance of correlations matr
 or return `NaN` if the parcel fails to satisfy inclusion `criteria`
 """
 function homogeneity_test(
-		p::Parcel, cov_corr::Matrix; criteria::Function = x -> true
+		p::Parcel, cov_corr::Matrix; criteria::Function
 	)
 	verts = collapse(vertices(p), p.surface)
-	return criteria(p, verts) ? homogeneity(cov_corr[verts, verts]) : NaN
+	return criteria(p) ? homogeneity(cov_corr[verts, verts]) : NaN
 end
 
 """
@@ -52,7 +58,7 @@ all of them. See the method below that accepts a `Vector{Parcellation{T}}`.)
 """
 function homogeneity_test(
 		px::Parcellation{T}, cov_corr::Matrix; 
-		ks::Vector{T} = collect(keys(px)), criteria::Function = x -> true
+		ks::Vector{T} = collect(keys(px)), criteria::Function = x -> default_criteria
 	) where T
 	result = NamedArray(zeros(length(ks)) * NaN, (ks,))
 	for k in intersect(ks, keys(px))
@@ -69,7 +75,7 @@ a `NamedMatrix{T}` where parcel keys are given along the rows.
 """
 function homogeneity_test(
 		vp::Vector{Parcellation{T}}, cov_corr::Matrix;
-		ks::Vector{T}, criteria::Function = x -> true
+		ks::Vector{T}, criteria::Function = x -> default_criteria
 	) where T
 	ntests = length(vp)
 	names = (ks, collect(1:ntests))
@@ -80,5 +86,34 @@ function homogeneity_test(
 	end
 	return result
 end
+
+function summarize_homogeneity(m::NamedMatrix)
+	mat = rot_result
+	nparc, nrot = size(mat)
+	rowmeans = mapslices(x -> mean(x[isfinite.(x)]), rot_result.array; dims = 2)[:]
+	for i in 1:nparc
+		for j in 1:nrot
+			if isnan(mat[i, j])
+				mat[i, j] = rowmeans[i]
+			end
+		end
+	end
+	result = mapslices(x -> mean(x[isfinite.(x)]), mat.array; dims = 1)
+	return (mean = mean(result), std = std(result))
+end
+
+function summarize_homogeneity(x::NamedVector)
+	return mean(x.array[isfinite.(x.array)])
+end
+
+function summarize_homogeneity(real_result::NamedVector, rot_result::NamedMatrix)
+	real_mean = summarize_homogeneity(real_result)
+	rot_mean, rot_sd = summarize_homogeneity(rot_result)
+	return (real_mean - rot_mean) / rot_sd
+end
+
+
+
+
 
 
