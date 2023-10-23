@@ -65,7 +65,7 @@ function run_watershed(
 	maxheight = maximum(metric) * fracmaxh
 	heights = range(minheight, maxheight, length = nsteps)
 	nverts = length(neighbors)
-	chunk_size = Int(floor(nverts / nchunks))
+	chunk_size = Int(ceil(nverts / nchunks))
 	edges = zeros(UInt16, nverts, nverts)
 	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
 	ThreadsX.foreach(
