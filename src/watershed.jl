@@ -75,3 +75,19 @@ function run_watershed(
 	return mean(edges .== 0; dims = 2)[:]
 end
 
+function run_watershed(
+		metric::Matrix, minima::BitMatrix, surface::SurfaceSpace; kwargs...
+	)
+	haskey(surface, :neighbors) || error("surface must have adjacency list :neighbors")
+	nverts = size(metric)
+	if nverts == size(surface)
+		mw_indexing = Inclusive()
+	elseif nverts == size(surface, Exclusive())
+		mw_indexing = Exclusive()
+	else
+		error(DimensionMismatch)
+	end
+	neighbords = surface[:neighbors, mw_indexing]
+	return run_watershed(metric, minima, neighbors; kwargs...)
+end
+
