@@ -1,13 +1,13 @@
 # WatershedParcellation
 This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
-Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 262 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
+Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
 - 32 GB RAM (required)
 - 4 to 8 CPU cores (recommended)
-- Julia v1.8.3+
+- Julia >= v1.9
 
 For working with a single-hemisphere only, you should be able to reduce the RAM usage to 12 GB.
 
@@ -22,7 +22,7 @@ In terms of the basic stages of operations, the below chart summarizes what's cu
 
 Currently missing in this implementation, and not planned for the near future, is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, doing that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. I will soon add specifics about the exact steps we carried out in that regard, and will also consider adding in some extra code to wrap the process, if time allows.
 
-As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the middle of October 2023):
+As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the end of October 2023).
 | |Goals|
 |-|----------------------------------------------------|
 |☑|Single-hemisphere functionality|
