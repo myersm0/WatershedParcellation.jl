@@ -79,7 +79,7 @@ function run_watershed(
 		metric::Matrix, minima::BitMatrix, surface::SurfaceSpace; kwargs...
 	)
 	haskey(surface, :neighbors) || error("surface must have adjacency list :neighbors")
-	nverts = size(metric)
+	nverts = size(metric, 1)
 	if nverts == size(surface)
 		mw_indexing = Inclusive()
 	elseif nverts == size(surface, Exclusive())
