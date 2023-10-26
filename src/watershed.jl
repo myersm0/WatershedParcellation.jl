@@ -87,7 +87,7 @@ function run_watershed(
 	else
 		error(DimensionMismatch)
 	end
-	neighbords = surface[:neighbors, mw_indexing]
+	neighbors = surface[:neighbors, mw_indexing]
 	return run_watershed(metric, minima, neighbors; kwargs...)
 end
 
