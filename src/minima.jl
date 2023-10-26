@@ -8,7 +8,9 @@ function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)
 	return all(b - a .> 0; dims = 1)
 end
 
-function find_minima(metric::AbstractMatrix, A::SparseMatrixCSC; radius::Int = 3)
+function find_minima(
+		metric::AbstractMatrix, A::SparseMatrixCSC; radius::Int = 3
+	)::BitMatrix
 	nverts = size(metric, 1)
 	minima = BitMatrix(undef, nverts, nverts)
 	Aᵖ = A ^ radius
