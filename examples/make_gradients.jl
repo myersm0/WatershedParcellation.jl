@@ -11,6 +11,8 @@
 # to be a nvertices x nvertices matrix of correlations, Fisher z-transformed.
 #
 # With 64 CPU cores, the wb_command calls take about 30 minutes each.
+#
+# The dconn-related operations require high RAM (~48 GB).
 
 using JSON
 using CIFTI
@@ -27,7 +29,7 @@ corrofcorr = atanh.(cor(dconn.data))
 dconn = nothing
 
 # fill the diagonal with a reasonable high value instead of Inf
-# (3.8002 is what atanh() in MATLAB puts along diag, so trying to reproduce that)
+# (using 3.8002 to replicate what MATLAB does in atanh())
 for v in 1:size(corrofcorr, 1)
 	corrofcorr[v, v] = 3.8002
 end
@@ -56,8 +58,4 @@ run(`wb_command -cifti-smoothing
 	-left-surface $(config["surfaces"]["for smoothing"]["L"])
 	-right-surface $(config["surfaces"]["for smoothing"]["R"])
 `)
-
-open(config["outputs"]["config"], "w") do fid
-	JSON.print(fid, config, 4)
-end
 
