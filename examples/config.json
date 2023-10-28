@@ -1,0 +1,19 @@
+{
+	"dconn": "path_to_dconn.dconn.nii",
+	"kernel": 2.55,
+	"surfaces": {
+		"for gradients": {
+			"L": "path_to_subject-specific_midthickness.L.surf.gii",
+			"R": "path_to_subject-specific_midthickness.R.surf.gii"
+		},
+		"for smoothing": {
+			"L": "path_to_group-avg_midthickness.L.surf.gii",
+			"R": "path_to_group-avg_midthickness.R.surf.gii"
+		}
+	},
+	"outputs": {
+		"similarity map": "similarity.dconn.nii",
+		"gradient map": "gradients.dconn.nii",
+		"smoothed gradients": "smoothed_gradients.dconn.nii"
+	}
+}
