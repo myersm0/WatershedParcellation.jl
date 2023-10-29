@@ -76,7 +76,7 @@ function merge_small_parcels!(
 end
 
 """
-    remove_high_edges!(px, metric; threshold)
+    cap_at_height!(px, metric; threshold)
 
 Remove vertices from `px::Parcellation` where `metric` (such as an edgemap) exceeds
 a maximum value, defined as the `threshold` quantile of values from `metric`. If any
@@ -85,7 +85,7 @@ components that emerged into new parcels.
 
 Returns the number of high vertices removed in this process.
 """
-function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.9)
+function restrict_to_height!(px::Parcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold < 1.0 || error(DomainError)
 	threshold = quantile(metric, [threshold])[1]
 	n = 0
