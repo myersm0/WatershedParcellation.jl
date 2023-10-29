@@ -20,7 +20,7 @@ import CorticalSurfaces: AdjacencyList, AdjacencyMatrix, DistanceMatrix
 
 include("minima.jl")
 include("watershed.jl")
-include("fill.jl")
+include("cleanup.jl")
 include("rotation.jl")
 include("homogeneity.jl")
 
