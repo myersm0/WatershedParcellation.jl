@@ -1,8 +1,9 @@
 
-# This is a demonstration of how to create gradient maps that will be used for
-# parcel creation, in the event that you need just a single gradient map
-# (rather than an average of many gradient maps, as would be the case for
-# doing a group parcellation).
+# Gradient creation is not part of the supplied WatershedParcellation implementation,
+# but since it's a prerequisite for running the algorithm we provide a demonstration 
+# here of how you could do so. (Specifically we illustrate the case of creating just
+# a single gradient map. If you're doing a group parcellation, you would create many
+# of these maps and then average them.)
 #
 # See config.json in this same directory for a structure for supplying input
 # and output paths.

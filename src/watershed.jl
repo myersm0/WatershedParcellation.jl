@@ -44,6 +44,29 @@ function watershed_chunk!(
 	end
 end
 
+function run_watershed(metric::Vector, surface::SurfaceSpace; thresh_quantile = 0.75)
+	nelem = length(metric)
+	if nelem == size(surface)
+		mw_indexing = Inclusive()
+	elseif nelem == size(surface, Exclusive())
+		mw_indexing = Exclusive()
+	else
+		error(DimensionMismatch)
+	end
+	neighbors = surface[:neighbors, mw_indexing]
+	metric2 = deepcopy(metric)
+	basins = make_basins!(metric2, surface; thresh_quantile = 0.75)
+	labels = zeros(Int, nelem)
+	labelpos = findall(basins)
+	nlabels = length(labelpos)
+	sorti = sortperm(metric[labelpos])
+	labels[labelpos[sorti]] .= 1:nlabels
+	watershed_zones = zeros(Int, nelem)
+	hiter = sort(unique(metric))
+	[WatershedParcellation.eval_at_height!(h, labels, metric2, watershed_zones, neighbors) for h in hiter]
+	return labels
+end
+
 """
     run_watershed(metric, minima, neighbors)
 
@@ -89,5 +112,34 @@ function run_watershed(
 	end
 	neighbors = surface[:neighbors, mw_indexing]
 	return run_watershed(metric, minima, neighbors; kwargs...)
+end
+
+function make_basins!(metric::Vector, surface::SurfaceSpace; thresh_quantile = 0.75)
+	haskey(surface, :neighbors) || error(KeyError)
+	 nelem = length(metric)
+	if nelem == size(surface)
+		mw_indexing = Inclusive()
+	elseif nelem == size(surface, Exclusive())
+		mw_indexing = Exclusive()
+	else
+		error(DimensionMismatch)
+	end
+	neighbors = surface[:neighbors, mw_indexing]
+	nverts = size(neighbors, 1)
+	threshold = quantile(metric, [thresh_quantile])[1]
+	out = falses(nverts)
+	for v in 1:nverts
+		val = metric[v]
+		nodeneigh = neighbors[v]
+		min_neigh = minimum(metric[nodeneigh])
+		if val <= min_neigh && val < threshold
+			out[v] = true
+			temp = findall(metric[nodeneigh] .== val)
+			if length(temp) > 0
+				metric[nodeneigh[temp]] .+= 0.00001
+			end
+		end
+	end
+	return out
 end
 
