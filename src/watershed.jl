@@ -63,7 +63,7 @@ function run_watershed(metric::Vector, surface::SurfaceSpace; thresh_quantile = 
 	labels[labelpos[sorti]] .= 1:nlabels
 	watershed_zones = zeros(Int, nelem)
 	hiter = sort(unique(metric))
-	[WatershedParcellation.eval_at_height!(h, labels, metric2, watershed_zones, neighbors) for h in hiter]
+	[eval_at_height!(h, labels, metric2, watershed_zones, neighbors) for h in hiter]
 	return labels
 end
 

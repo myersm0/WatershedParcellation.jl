@@ -1,5 +1,6 @@
 
 export remove_weak_boundaries!, remove_high_edges!, merge_small_parcels!
+export removate_articulation_points!, remove_small_parcels!
 
 function localarea_test(margin::Parcel, metric::Vector; radius = 30)
 	verts = vertices(margin)
@@ -30,7 +31,10 @@ function merge_small_parcels!(px::Parcellation, metric::Vector; threshold = 30)
 		k in keys(px) || continue
 		p = px[k]
 		size(p) < threshold || continue
-		neigh_parcels = filter(k -> sum(interstices(p, px[k])) > 0, collect(keys(px)))
+		neigh_parcels = filter(
+			k -> any(interstices(p, px[k])),
+			setdiff(collect(keys(px)), k)
+		)
 		length(neigh_parcels) > 0 || continue
 		vals = [localarea_test(Parcel(px.surface, interstices(p, px[k])), metric) for k in neigh_parcels]
 		merge!(px, k, neigh_parcels[argmin(vals)])
@@ -51,11 +55,36 @@ function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.3360
 			delete!(px, k)
 			for i in 1:length(new_parcels)
 				verts = vertices(new_parcels[i])
-				new_k = verts[1]
-				px[new_k] = new_parcels[i]
+				new_key = maximum(keys(px)) + 1
+				px[new_key] = new_parcels[i]
 			end
 		end
 	end
 end
 
+function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
+	n = 0
+	for k in keys(px)
+		new_parcels = cut(px[k])
+		if sum(size.(new_parcels) .> minsize) > 1
+			println("Handing parcel $k ...")
+			delete!(px, k)
+			for p in new_parcels
+				new_key = maximum(keys(px)) + 1
+				px[new_key] = p
+			end
+			n += 1
+		end
+	end
+	return n
+end
+
+function remove_small_parcels!(px::Parcellation; minsize = 10)
+	n = 0
+	for k in keys(px)
+		size(px[k]) > minsize || delete!(px, k)
+		n += 1
+	end
+	return n
+end
 
