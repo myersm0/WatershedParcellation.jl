@@ -10,7 +10,7 @@ The goals of this package are:
 	- Implementing it with open source tools
 	- Substantially improving the execution speed
 	- Bringing RAM usage under control (<= 32 GB)
-	- Breaking the method into modular, customizable, easy-to-digest pieces to allow further experimentation and improvement
+	- Breaking the method into modular, customizable pieces that encourage further experimentation and improvement
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
