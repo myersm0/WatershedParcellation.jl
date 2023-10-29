@@ -17,17 +17,17 @@ In terms of the basic stages of operations, the below chart summarizes what's cu
 | |Functionality|
 |-|:----------------------------------------------------------------|
 |☑|The core watershed algorithm to generate edge maps from gradients|
-|☐|Flooding of edge map basins to generate parcels|
+|☑|Flooding of edge map basins to generate parcels|
 |☑|Homogeneity evaluation and null-model testing via rotation|
 
-Currently missing in this implementation, and not planned for the near future, is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, doing that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. I will soon add specifics about the exact steps we carried out in that regard, and will also consider adding in some extra code to wrap the process, if time allows.
+Missing in this implementation is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, doing that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. The file `examples/make_gradients.jl` demonstrates how you could do this for the single-subject case.
 
 As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the end of October 2023).
 | |Goals|
 |-|----------------------------------------------------|
 |☑|Single-hemisphere functionality|
 |☐|Bilateral functionality|
-|☐|Exclusion of low-signal regions|
+|☑|Exclusion of low-signal regions|
 |☐|Support for loading of spatial data from GIFTI files|
 |☐|A full demo|
 
@@ -35,7 +35,7 @@ As for the functionality that currently exists, there are a few gaps still to be
 From within a Julia session:
 ```
 using Pkg
-Pkg.add(url = "https://github.com/myersm0/WatershedParcellation.jl")
+Pkg.add("WatershedParcellation")
 ```
 
 ## Performance
