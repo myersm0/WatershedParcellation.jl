@@ -1,6 +1,6 @@
 
 export remove_weak_boundaries!, remove_high_edges!, merge_small_parcels!
-export removate_articulation_points!, remove_small_parcels!
+export remove_articulation_points!, remove_small_parcels!
 
 function edge_strength(margin::Parcel, metric::Vector; radius::Number)
 	verts = vertices(margin)
@@ -15,7 +15,7 @@ end
     remove_weak_boundaries!(px, metric; threshold)
 
 For each marginal or interstitial region separating two parcels in `px::Parcellation`,
-determine a merge priority for that region based on its "edge strength": the median 
+determine a merge priority for that region based on its edge strength: the median 
 value from `metric` (such as an edgemap) relative to the values in a neighborhood of 
 size `radius`. Iteratively merge pairs of parcels having such regions, starting with 
 the weakest edge and proceeding until the edge strength reaches or exceeds `threshold`.
@@ -85,8 +85,9 @@ components that emerged into new parcels.
 
 Returns the number of high vertices removed in this process.
 """
-function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.336085307)
+function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold < 1.0 || error(DomainError)
+	threshold = quantile(metric, [threshold])[1]
 	n = 0
 	for k in keys(px)
 		p = px[k]
@@ -146,7 +147,8 @@ Returns the number of small parcels that were removed.
 function remove_small_parcels!(px::Parcellation; minsize = 10)
 	n = 0
 	for k in keys(px)
-		size(px[k]) > minsize || delete!(px, k)
+		size(px[k]) < minsize || continue
+		delete!(px, k)
 		n += 1
 	end
 	return n
