@@ -1,5 +1,5 @@
 
-export remove_weak_boundaries!, remove_high_edges!, merge_small_parcels!
+export remove_weak_boundaries!, cap_at_height!, merge_small_parcels!
 export remove_articulation_points!, remove_small_parcels!
 
 function edge_strength(margin::Parcel, metric::Vector; radius::Number)
