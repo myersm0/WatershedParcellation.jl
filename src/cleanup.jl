@@ -2,7 +2,7 @@
 export remove_weak_boundaries!, remove_high_edges!, merge_small_parcels!
 export removate_articulation_points!, remove_small_parcels!
 
-function localarea_test(margin::Parcel, metric::Vector; radius = 30)
+function edge_strength(margin::Parcel, metric::Vector; radius::Number)
 	verts = vertices(margin)
 	median_edgeval = median(metric[verts])
 	verts_in_radius =
@@ -11,12 +11,28 @@ function localarea_test(margin::Parcel, metric::Vector; radius = 30)
 	return mean(localarea .< median_edgeval)
 end
 
-function remove_weak_boundaries!(px::Parcellation, metric::Vector; threshold = 0.38)
+"""
+    remove_weak_boundaries!(px, metric; threshold)
+
+For each marginal or interstitial region separating two parcels in `px::Parcellation`,
+determine a merge priority for that region based on its "edge strength": the median 
+value from `metric` (such as an edgemap) relative to the values in a neighborhood of 
+size `radius`. Iteratively merge pairs of parcels having such regions, starting with 
+the weakest edge and proceeding until the edge strength reaches or exceeds `threshold`.
+
+Returns the number of boundaries that have been merged.
+"""
+function remove_weak_boundaries!(
+		px::Parcellation, metric::Vector; threshold = 0.38, radius = 30
+	)
 	n = 0
 	while true
 		margins = interstices(px)
 		pairs = collect(keys(margins))
-		vals = [localarea_test(Parcel(px.surface, margins[p]), metric) for p in pairs]
+		vals = [
+			edge_strength(Parcel(px.surface, margins[p]), metric; radius = radius)
+			for p in pairs
+		]
 		i = argmin(vals)
 		vals[i] < threshold || break
 		merge!(px, pairs[i]...)
@@ -25,29 +41,58 @@ function remove_weak_boundaries!(px::Parcellation, metric::Vector; threshold = 0
 	return n
 end
 
-function merge_small_parcels!(px::Parcellation, metric::Vector; threshold = 30)
+"""
+    merge_small_parcels!(px, metric; threshold)
+
+For each `Parcel` in `px::Parcellation` smaller than `minsize` vertices, find its
+neighboring parcels (if any) and merge it with the one that has the weakest edge,
+i.e. the one for which the median value of `metric` (such as an edgemap) in the 
+interstitial region has the lowest value relative to values in a neighborhood
+of size `radius`.
+
+Returns the number of merge operations that have occurred. 
+"""
+function merge_small_parcels!(
+		px::Parcellation, metric::Vector; minsize = 30, radius = 30
+	)
 	n = 0
 	for k in keys(px)
 		k in keys(px) || continue
 		p = px[k]
-		size(p) < threshold || continue
+		size(p) < minsize || continue
 		neigh_parcels = filter(
 			k -> any(interstices(p, px[k])),
 			setdiff(collect(keys(px)), k)
 		)
 		length(neigh_parcels) > 0 || continue
-		vals = [localarea_test(Parcel(px.surface, interstices(p, px[k])), metric) for k in neigh_parcels]
+		vals = [
+			edge_strength(Parcel(px.surface, interstices(p, px[k])), metric; radius = radius) 
+			for k in neigh_parcels
+		]
 		merge!(px, k, neigh_parcels[argmin(vals)])
 		n += 1
 	end 
 	return n
 end
 
+"""
+    remove_high_edges!(px, metric; threshold)
+
+Remove vertices from `px::Parcellation` where `metric` (such as an edgemap) exceeds
+a maximum value, defined as the `threshold` quantile of values from `metric`. If any
+parcels are separated or disconnected in this process, then split their new connected
+components that emerged into new parcels.
+
+Returns the number of high vertices removed in this process.
+"""
 function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.336085307)
+	0.0 < threshold < 1.0 || error(DomainError)
+	n = 0
 	for k in keys(px)
 		p = px[k]
 		verts = vertices(p)
 		high_edge_verts = filter(x -> metric[x] > threshold, verts)
+		length(high_edge_verts) > 0 || continue
 		new_parcels = split(p, high_edge_verts)
 		if length(new_parcels) == 1
 			intersect!(p, new_parcels[1])
@@ -59,9 +104,21 @@ function remove_high_edges!(px::Parcellation, metric::Vector; threshold = 0.3360
 				px[new_key] = new_parcels[i]
 			end
 		end
+		n += length(high_edge_verts)
 	end
+	return n
 end
 
+"""
+    remove_articulation_points!(px; threshold)
+
+If any parcels in `px::Parcellation` have an articulation point or cut vertex,
+the removal of which will disconnect the parcel, then remove that vertex and 
+separate the parcel into its resulting connected components, as long as there
+are at least two "reasonably sized" components of size >= `minsize` vertices.
+
+Returns the number of articulation points that were handled.
+"""
 function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
 	n = 0
 	for k in keys(px)
@@ -79,6 +136,13 @@ function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
 	return n
 end
 
+"""
+    remove_articulation_points!(px; threshold)
+
+Remove any parcels in `px::Parcellation` smaller than `minsize` vertices.
+
+Returns the number of small parcels that were removed.
+"""
 function remove_small_parcels!(px::Parcellation; minsize = 10)
 	n = 0
 	for k in keys(px)
