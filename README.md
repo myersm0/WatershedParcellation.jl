@@ -3,14 +3,14 @@ This package introduces a high performance Julia implementation of the parcellat
 
 Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
-The goals of this package (and its related dependencies, menioned above) are:
+The goals of this package are:
 - Extend the Julia language's ecosystem of fMRI-related packages
-- Build a framework of operations for more easily and performantly working with spatial and functional neuroimaging data in conjunction
+- Demonstrate utility of a framework of operations (laid out in CorticalSurfaces.jl and CorticalParcels.jl) for more easily and performantly working with spatial and functional neuroimaging data in conjunction
 - Improve accessibility of this parcellation method to other researchers by:
 	- Implementing it with open source tools
 	- Substantially improving the execution speed
 	- Bringing RAM usage under control (<= 32 GB)
-	- Breaking the method into modular, easy-to-digest pieces for better comprehensibility and customizability
+	- Breaking the method into modular, customizable, easy-to-digest pieces to allow further experimentation and improvement
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
