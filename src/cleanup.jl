@@ -85,7 +85,7 @@ components that emerged into new parcels.
 
 Returns the number of high vertices removed in this process.
 """
-function restrict_to_height!(px::Parcellation, metric::Vector; threshold = 0.9)
+function cap_at_height!(px::Parcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold < 1.0 || error(DomainError)
 	threshold = quantile(metric, [threshold])[1]
 	n = 0
