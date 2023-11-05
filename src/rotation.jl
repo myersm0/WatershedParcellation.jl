@@ -30,7 +30,7 @@ end
 
 "Get rotated spherical coordinates from a set of three rotation matrices"
 function rotate_on_sphere(rotmat::Array, sphere_coords::Matrix)
-	xrot_coords = rotmat[1, :, :] * sphere_coords'
+	xrot_coords = rotmat[1, :, :] * sphere_coords
 	xyrot_coords = rotmat[2, :, :] * xrot_coords
 	return rotmat[3, :, :] * xyrot_coords
 end
@@ -46,8 +46,8 @@ function process_rotation(
 	coordsθ = rotate_on_sphere(rotmats, coordinates(p.surface)[:, vertices(p)])
 	pθ = Parcel(p.surface, coordsθ, tree)
 	size(pθ) > 0 || return
-	close!(pθ, neigh)
-	resize!(pθ, size(p), A, neigh)
+	close!(pθ, neighbors)
+	resize!(pθ, size(p), A, neighbors)
 	return pθ
 end
 

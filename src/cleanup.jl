@@ -97,7 +97,7 @@ function cap_at_height!(px::Parcellation, metric::Vector; threshold = 0.9)
 		p = px[k]
 		verts = vertices(p)
 		high_edge_verts = filter(x -> metric[x] > threshold, verts)
-		any(high_edge_verts) || continue
+		length(high_edge_verts) > 0 || continue
 		new_parcels = split(p, high_edge_verts)
 		if length(new_parcels) == 1
 			intersect!(p, new_parcels[1])
