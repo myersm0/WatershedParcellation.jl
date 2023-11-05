@@ -29,10 +29,10 @@ function remove_weak_boundaries!(
 	while true
 		margins = interstices(px)
 		pairs = collect(keys(margins))
-		vals = [
-			edge_strength(Parcel(px.surface, margins[p]), metric; radius = radius)
-			for p in pairs
-		]
+		vals = ThreadsX.map(
+			p -> edge_strength(Parcel(px.surface, margins[p]), metric; radius = radius),
+			pairs
+		)
 		i = argmin(vals)
 		vals[i] < threshold || break
 		merge!(px, pairs[i]...)
