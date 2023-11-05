@@ -1,7 +1,7 @@
 
 export find_minima
 
-function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)
+function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)::BitVector
 	neighbors = setdiff(findall(Aᵖ[:, v] .!= 0), v)
 	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
 	b = @view metric[neighbors, :]
@@ -12,9 +12,9 @@ function find_minima(
 		metric::AbstractMatrix, A::SparseMatrixCSC; radius::Int = 3
 	)::BitMatrix
 	nverts = size(metric, 1)
-	minima = BitMatrix(undef, nverts, nverts)
 	Aᵖ = A ^ radius
-	Threads.@threads for v in 1:nverts
+	minima = BitMatrix(undef, nverts, nverts)
+	Threads.@threads :dynamic for v in 1:nverts
 		minima[:, v] = find_minima(metric, Aᵖ, v)
 	end
 	return minima'
@@ -30,7 +30,7 @@ symbol `:A` (an adjacency matrix)
 function find_minima(metric::AbstractMatrix, surface::SurfaceSpace; radius::Int = 3)
 	haskey(surface, :A) || error("surface must contain adjacency matrix :A")
 	m, n = size(metric)
-	allequal([m, n]) || error("`metric` must be a square Matrix")
+	m == n || error("`metric` must be a square Matrix")
 	if m == size(surface, Inclusive())
 		A = surface[:A]
 	elseif m == size(surface, Exclusive())

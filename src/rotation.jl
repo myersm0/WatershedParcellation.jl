@@ -43,7 +43,7 @@ function process_rotation(
 		neighbors::AdjacencyList,
 		A::AdjacencyMatrix
 	)
-	coordsθ = rotate_on_sphere(rotmats, coordinates(p.surface)[vertices(p), :])
+	coordsθ = rotate_on_sphere(rotmats, coordinates(p.surface)[:, vertices(p)])
 	pθ = Parcel(p.surface, coordsθ, tree)
 	size(pθ) > 0 || return
 	close!(pθ, neigh)

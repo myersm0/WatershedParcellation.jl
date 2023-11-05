@@ -1,70 +1,35 @@
 
 export run_watershed
 
-# doesn't return a val, but modifies label and watershed_zones vectors in place
-function eval_at_height!(h, label, edgemetric, watershed_zones, neighbors)
+# doesn't return a val, but modifies labels and watershed_zones vectors in place
+function eval_at_height!(h, labels, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin
-		(edgemetric .< h) .& (label .== 0) .& (watershed_zones .== 0)
+		(edgemetric .< h) .& (labels .== 0) .& .!watershed_zones
 		findall
 		sample(_, length(_); replace = false)
 	end
 	for node in nodes_at_threshold
-		nodeneighlab = setdiff(label[neighbors[node]], 0)
-		length(nodeneighlab) > 0 || continue
-		minnodeneighlab = minimum(nodeneighlab)
-		maxnodeneighlab = maximum(nodeneighlab)
-		if minnodeneighlab != maxnodeneighlab
-			watershed_zones[node] = true
-			label[node] = 0
+		nodeneighlab = setdiff(labels[neighbors[node]], 0)
+		n = length(nodeneighlab)
+		n > 0 || continue
+		if n == 1
+			labels[node] = nodeneighlab[1]
 		else
-			label[node] = minnodeneighlab
+			watershed_zones[node] = true
+			labels[node] = 0
 		end
 	end
 end
 
-# edges arg will be modified in place
-function watershed_chunk!(
-		edges::AbstractMatrix, 
-		metric::AbstractMatrix, 
-		minima::BitMatrix, 
-		neigh::AdjacencyList,
-		chunk::UnitRange, 
-		heights::StepRangeLen
-	)
-	for i in chunk
-		nverts = size(minima, 1)
-		label = @view edges[:, i] 
-		edgemetric = @view metric[:, i] 
-		labelpos = findall(minima[:, i])
-		randval = randn(length(labelpos))
-		labelnums = sortperm(randval)
-		label[labelpos] = labelnums
-		watershed_zones = zeros(nverts)
-		[eval_at_height!(h, label, edgemetric, watershed_zones, neigh) for h in heights]
+function watershed_iter(edgemetric, minima, neighbors, heights, nverts)::BitVector
+	watershed_zones = falses(nverts)
+	labels = zeros(UInt16, nverts)
+	nbasins = sum(minima)
+	labels[minima] .= sample(0x0001:nbasins, nbasins; replace = false)
+	for h in heights
+		eval_at_height!(h, labels, edgemetric, watershed_zones, neighbors)
 	end
-end
-
-function run_watershed(metric::Vector, surface::SurfaceSpace; thresh_quantile = 0.75)
-	nelem = length(metric)
-	if nelem == size(surface)
-		mw_indexing = Inclusive()
-	elseif nelem == size(surface, Exclusive())
-		mw_indexing = Exclusive()
-	else
-		error(DimensionMismatch)
-	end
-	neighbors = surface[:neighbors, mw_indexing]
-	metric2 = deepcopy(metric)
-	basins = make_basins!(metric2, surface; thresh_quantile = 0.75)
-	labels = zeros(Int, nelem)
-	labelpos = findall(basins)
-	nlabels = length(labelpos)
-	sorti = sortperm(metric[labelpos])
-	labels[labelpos[sorti]] .= 1:nlabels
-	watershed_zones = zeros(Int, nelem)
-	hiter = sort(unique(metric))
-	[eval_at_height!(h, labels, metric2, watershed_zones, neighbors) for h in hiter]
-	return labels
+	return labels .== 0
 end
 
 """
@@ -75,27 +40,23 @@ Run the watershed algorithm on `metric`, using its `minima` (as returned from
 the adjacency list `neighbors`.
 
 Some optional parameters can be tuned:
-- `nsteps`: the number of bins into which to discretize the heights (default `400`)
-- `fracmaxh`: a scaling factor to determine a ceiling on height values (default `1.0`)
-- `nchunks`: split up the work into this many chunks for multithreading (default `64`)
+- `nsteps`: the number of bins into which to discretize the heights (default 400)
+- `fracmaxh`: a scaling factor to determine a ceiling on height values (default 1.0)
 """
 function run_watershed(
 		metric::Matrix, minima::BitMatrix, neighbors::AdjacencyList;
-		nsteps::Int = 400, fracmaxh::Float64 = 1.0, nchunks::Int = 64
+		nsteps::Int = 400, fracmaxh::Float64 = 1.0
 	)
-	@assert all([nsteps, nchunks, fracmaxh] .> 0)
+	all([nsteps, fracmaxh] .> 0) || error(DomainError)
 	minheight = minimum(metric)
 	maxheight = maximum(metric) * fracmaxh
 	heights = range(minheight, maxheight, length = nsteps)
 	nverts = length(neighbors)
-	chunk_size = Int(ceil(nverts / nchunks))
-	edges = zeros(UInt16, nverts, nverts)
-	chunks = [((c - 1) * chunk_size + 1):min(nverts, c * chunk_size) for c in 1:nchunks]
-	ThreadsX.foreach(
-		chunk -> watershed_chunk!(edges, metric, minima, neighbors, chunk, heights), 
-		chunks
-	)
-	return mean(edges .== 0; dims = 2)[:]
+	edges = falses(nverts, nverts)
+	Threads.@threads :dynamic for v in 1:59412
+		edges[:, v] .= watershed_iter(metric[:, v], minima[:, v], neighbors, heights, nverts) 
+	end
+	return mean(edges; dims = 2)[:]
 end
 
 function run_watershed(
@@ -141,5 +102,28 @@ function make_basins!(metric::Vector, surface::SurfaceSpace; thresh_quantile = 0
 		end
 	end
 	return out
+end
+
+function run_watershed(metric::Vector, surface::SurfaceSpace; thresh_quantile = 0.75)
+	nelem = length(metric)
+	if nelem == size(surface)
+		mw_indexing = Inclusive()
+	elseif nelem == size(surface, Exclusive())
+		mw_indexing = Exclusive()
+	else
+		error(DimensionMismatch)
+	end
+	neighbors = surface[:neighbors, mw_indexing]
+	metric2 = deepcopy(metric)
+	basins = make_basins!(metric2, surface; thresh_quantile = 0.75)
+	labels = zeros(Int, nelem)
+	labelpos = findall(basins)
+	nlabels = length(labelpos)
+	sorti = sortperm(metric[labelpos])
+	labels[labelpos[sorti]] .= 1:nlabels
+	watershed_zones = falses(nelem)
+	hiter = sort(unique(metric))
+	[eval_at_height!(h, labels, metric2, watershed_zones, neighbors) for h in hiter]
+	return labels
 end
 

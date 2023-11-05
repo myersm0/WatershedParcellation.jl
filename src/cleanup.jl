@@ -29,10 +29,13 @@ function remove_weak_boundaries!(
 	while true
 		margins = interstices(px)
 		pairs = collect(keys(margins))
-		vals = ThreadsX.map(
-			p -> edge_strength(Parcel(px.surface, margins[p]), metric; radius = radius),
-			pairs
-		)
+		vals = zeros(length(pairs))
+		Threads.@threads :dynamic for i in 1:length(pairs)
+			pair = pairs[i]
+			vals[i] = edge_strength(
+				Parcel(px.surface, margins[pair]), metric; radius = radius
+			)
+		end
 		i = argmin(vals)
 		vals[i] < threshold || break
 		merge!(px, pairs[i]...)
@@ -57,7 +60,8 @@ function merge_small_parcels!(
 	)
 	n = 0
 	for k in keys(px)
-		k in keys(px) || continue
+		# skip if this key has already been removed (merged) in a previous iter:
+		haskey(px, k) || continue
 		p = px[k]
 		size(p) < minsize || continue
 		neigh_parcels = filter(
@@ -86,14 +90,14 @@ components that emerged into new parcels.
 Returns the number of high vertices removed in this process.
 """
 function cap_at_height!(px::Parcellation, metric::Vector; threshold = 0.9)
-	0.0 < threshold < 1.0 || error(DomainError)
+	0.0 < threshold <= 1.0 || error(DomainError)
 	threshold = quantile(metric, [threshold])[1]
 	n = 0
 	for k in keys(px)
 		p = px[k]
 		verts = vertices(p)
 		high_edge_verts = filter(x -> metric[x] > threshold, verts)
-		length(high_edge_verts) > 0 || continue
+		any(high_edge_verts) || continue
 		new_parcels = split(p, high_edge_verts)
 		if length(new_parcels) == 1
 			intersect!(p, new_parcels[1])
