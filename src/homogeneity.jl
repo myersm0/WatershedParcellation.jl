@@ -1,7 +1,7 @@
 
 using StatsBase: std
 
-export make_cov_corr, homogeneity_test
+export make_cov_corr, homogeneity_test, default_criteria, summarize_homogeneity
 
 """
 	 make_cov_corr(mat, hem)
@@ -19,7 +19,7 @@ function make_cov_corr(mat::Matrix, hem::Hemisphere)
 end
 
 function default_criteria(p::Parcel)
-	return sum(p.membership .& p.surface.medial_wall) == 0
+	return overlap(p, medial_wall(p.surface)) == 0
 end
 
 """
@@ -111,9 +111,4 @@ function summarize_homogeneity(real_result::NamedVector, rot_result::NamedMatrix
 	rot_mean, rot_sd = summarize_homogeneity(rot_result)
 	return (real_mean - rot_mean) / rot_sd
 end
-
-
-
-
-
 
