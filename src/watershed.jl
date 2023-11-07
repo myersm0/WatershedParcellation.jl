@@ -53,7 +53,7 @@ function run_watershed(
 	heights = range(minheight, maxheight, length = nsteps)
 	nverts = length(neighbors)
 	edges = falses(nverts, nverts)
-	Threads.@threads :dynamic for v in 1:59412
+	Threads.@threads :dynamic for v in 1:nverts
 		edges[:, v] .= watershed_iter(metric[:, v], minima[:, v], neighbors, heights, nverts) 
 	end
 	return mean(edges; dims = 2)[:]
