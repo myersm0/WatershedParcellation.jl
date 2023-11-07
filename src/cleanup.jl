@@ -45,7 +45,6 @@ function remove_weak_boundaries!(
 		# delete margins that involved this pair because they may no longer be accurate
 		for pair in pairs
 			if pairs[i][1] in pair || pairs[i][2] in pair
-				println("Deleting $pair")
 				delete!(margins, pair)
 			end
 		end
@@ -153,7 +152,6 @@ function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
 	for k in keys(px)
 		new_parcels = cut(px[k])
 		if sum(size.(new_parcels) .> minsize) > 1
-			println("Handing parcel $k ...")
 			delete!(px, k)
 			for p in new_parcels
 				new_key = maximum(keys(px)) + 1

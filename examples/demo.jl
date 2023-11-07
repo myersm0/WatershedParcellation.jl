@@ -19,7 +19,7 @@ template = config["template"]
 
 # ===== make edgemap =====
 grads = CIFTI.load(config["outputs"]["smoothed gradients"])
-minima = find_minima(grads.data, c)
+minima = find_minima(grads[LR], c)
 edgemap = run_watershed(grads[LR], minima, c; nsteps = config["nsteps"])
 outname = config["outputs"]["edgemap"]
 CIFTI.save(outname, Float32.(edgemap); template = template)
@@ -42,9 +42,9 @@ edges = pad(edgemap[hem][:], c[hem])
 # ==== cleanup (enforce maximum height values, etc) =====
 remove_weak_boundaries!(px, edges; threshold = 0.3, radius = 30)
 merge_small_parcels!(px, edges; minsize = 30, radius = 30)
-cap_at_height!(px, edges; threshold = 0.9)
+threshold!(px, edges; threshold = 0.9)
 merge_small_parcels!(px, edges; minsize = 30, radius = 30)
-cap_at_height!(px, edges; threshold = 0.9)
+threshold!(px, edges; threshold = 0.9)
 remove_articulation_points!(px; minsize = 4)
 remove_small_parcels!(px; minsize = 10)
 
