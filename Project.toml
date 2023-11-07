@@ -1,7 +1,7 @@
 name = "WatershedParcellation"
 uuid = "d5eb8130-0e6d-4b05-a476-6219b4bda902"
 authors = ["Michael Myers"]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 CIFTI = "8026ff91-9e86-4f19-bd27-c139e9e8bf7a"
