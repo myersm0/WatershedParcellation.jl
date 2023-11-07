@@ -10,6 +10,8 @@
 			"R": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/conte/Conte69.R.midthickness.32k_fs_LR.surf.gii"
 		}
 	},
+	"32k objects": "conte69.fs_LR_32k.jld",
+	"distance matrix": "distance_matrix.jld",
 	"low-signal map": "/home/wustl/workspace/WatershedParcellation.jl/data/Baddata_bigcluster_LR.dtseries.nii",
 	"template": "/home/wustl/workspace/WatershedParcellation.jl/data/test_parcels.dtseries.nii",
 	"kernel": 2.55,
