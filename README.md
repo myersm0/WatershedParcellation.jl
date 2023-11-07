@@ -29,9 +29,8 @@ In terms of the basic stages of operations, the below chart summarizes what's cu
 |☑|Flooding of edge map basins to generate parcels|
 |☑|Homogeneity evaluation and null-model testing via rotation|
 
-Missing in this implementation is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, doing that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. The file `examples/make_gradients.jl` demonstrates how you could do this for the single-subject case.
+Missing in this implementation is code to generate gradient maps from connectivity, which is a preliminary step for the above. However, that step mostly just involves a straightforward application of Connectome Workbench's [cifti-gradient](https://humanconnectome.org/software/workbench-command/-cifti-gradient) command, and the details of running that will be specific to your dataset and analysis strategy. The file `examples/make_gradients.jl` shows how you could do this for the single-subject case.
 
-As for the functionality that currently exists, there are a few gaps still to be filled and that will be remedied in coming days (by approximately the end of October 2023).
 | |Goals|
 |-|----------------------------------------------------|
 |☑|Single-hemisphere functionality|
