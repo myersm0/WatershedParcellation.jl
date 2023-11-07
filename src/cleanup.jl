@@ -23,11 +23,13 @@ the weakest edge and proceeding until the edge strength reaches or exceeds `thre
 Returns the number of boundaries that have been merged.
 """
 function remove_weak_boundaries!(
-		px::Parcellation, metric::Vector; threshold = 0.38, radius = 30
+		px::Parcellation, metric::Vector; threshold = 0.3, radius = 30
 	)
 	n = 0
+	margins = interstices(px)
+
 	while true
-		margins = interstices(px)
+		# find boundaries to merge based on edge_strength
 		pairs = collect(keys(margins))
 		vals = zeros(length(pairs))
 		Threads.@threads :dynamic for i in 1:length(pairs)
@@ -39,10 +41,32 @@ function remove_weak_boundaries!(
 		i = argmin(vals)
 		vals[i] < threshold || break
 		merge!(px, pairs[i]...)
+
+		# delete margins that involved this pair because they may no longer be accurate
+		for pair in pairs
+			if pairs[i][1] in pair || pairs[i][2] in pair
+				println("Deleting $pair")
+				delete!(margins, pair)
+			end
+		end
+
+		# add new margins for the retained parcel because it has grown
+		k = pairs[i][1]
+		ua = unassigned(px)
+		for k2 in setdiff(collect(keys(px)), k)
+			i = interstices(px[k], px[k2]) .& ua
+			if any(i)
+				a = minimum([k, k2])
+				b = maximum([k, k2])
+				margins[(a, b)] = i
+			end
+		end
 		n += 1
 	end
+
 	return n
 end
+
 
 """
     merge_small_parcels!(px, metric; threshold)
