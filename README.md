@@ -1,11 +1,11 @@
 # WatershedParcellation
-This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
+This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CIFTI.jl](https://github.com/myersm0/CIFTI.jl), [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl), and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
 Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
 
 The goals of this package are:
 - Extend the Julia language's ecosystem of fMRI-related packages
-- Demonstrate utility of a framework of operations (laid out in CorticalSurfaces.jl and CorticalParcels.jl) for more easily and performantly working with spatial and functional neuroimaging data in conjunction
+- Demonstrate utility of a framework of operations (laid out in [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl)). for more easily and performantly working with spatial and functional neuroimaging data in conjunction
 - Improve accessibility of this parcellation method to other researchers by:
 	- Implementing it with open source tools
 	- Substantially improving the execution speed
