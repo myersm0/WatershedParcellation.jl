@@ -1,7 +1,7 @@
 
 export find_minima
 
-function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)::BitVector
+function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)::BitMatrix
 	neighbors = setdiff(findall(Aᵖ[:, v] .!= 0), v)
 	a = repeat(metric[v, :]', outer = [length(neighbors), 1])
 	b = @view metric[neighbors, :]
@@ -9,7 +9,7 @@ function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)::BitV
 end
 
 function find_minima(
-		metric::AbstractMatrix, A::SparseMatrixCSC; radius::Int = 3
+		metric::AbstractMatrix, A::AbstractMatrix; radius::Int = 3
 	)::BitMatrix
 	nverts = size(metric, 1)
 	Aᵖ = A ^ radius
