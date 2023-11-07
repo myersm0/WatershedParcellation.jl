@@ -1,5 +1,5 @@
 
-export remove_weak_boundaries!, cap_at_height!, merge_small_parcels!
+export remove_weak_boundaries!, threshold!, merge_small_parcels!
 export remove_articulation_points!, remove_small_parcels!
 
 function edge_strength(margin::Parcel, metric::Vector; radius::Number)
@@ -104,7 +104,7 @@ function merge_small_parcels!(
 end
 
 """
-    cap_at_height!(px, metric; threshold)
+    threshold!(px, metric; threshold)
 
 Remove vertices from `px::Parcellation` where `metric` (such as an edgemap) exceeds
 a maximum value, defined as the `threshold` quantile of values from `metric`. If any
@@ -113,7 +113,7 @@ components that emerged into new parcels.
 
 Returns the number of high vertices removed in this process.
 """
-function cap_at_height!(px::Parcellation, metric::Vector; threshold = 0.9)
+function threshold!(px::Parcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold <= 1.0 || error(DomainError)
 	threshold = quantile(metric, [threshold])[1]
 	n = 0
