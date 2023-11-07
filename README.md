@@ -38,7 +38,7 @@ As for the functionality that currently exists, there are a few gaps still to be
 |☐|Bilateral functionality|
 |☑|Exclusion of low-signal regions|
 |☐|Support for loading of spatial data from GIFTI files|
-|☐|A full demo|
+|☑|A full demo|
 
 ## Installation
 From within a Julia session:
@@ -64,16 +64,6 @@ using CorticalParcels
 using WatershedParcellation
 ```
 
-### Running the watershed algorithm to produce an edge map
-Details coming soon.
-
-### Flooding basins in the edge map to produce parcels
-Not yet implemented. Check back soon.
-
-### Generating a rotation-based null model
-Details coming soon.
-
-### Homogeneity evalaution
-Details coming soon.
+See `examples/demo.jl` for a run-through of the major steps. You would need to edit the `config.json` in the same folder to point to paths of all the necessary input objects, to adjust parameters, etc. Unfortunately, due to the sizes of some of the required inputs, I'm unable to include these artifacts in this repo but I aim to find a way to get around that soon.
 
 [![Build Status](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml?query=branch%3Amain)
