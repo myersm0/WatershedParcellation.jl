@@ -1,19 +1,26 @@
 {
-	"dconn": "path_to_dconn.dconn.nii",
-	"kernel": 2.55,
+	"dconn": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/fmri_artifacts.bak/MSC01/32k/MSC01_all_sessions_LR.dconn.nii",
 	"surfaces": {
-		"for gradients": {
-			"L": "path_to_subject-specific_midthickness.L.surf.gii",
-			"R": "path_to_subject-specific_midthickness.R.surf.gii"
-		},
 		"for smoothing": {
-			"L": "path_to_group-avg_midthickness.L.surf.gii",
-			"R": "path_to_group-avg_midthickness.R.surf.gii"
+			"L": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/conte/Conte69.L.midthickness.32k_fs_LR.surf.gii",
+			"R": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/conte/Conte69.R.midthickness.32k_fs_LR.surf.gii"
+		},
+		"for gradients": {
+			"L": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/conte/Conte69.L.midthickness.32k_fs_LR.surf.gii",
+			"R": "/home/wustl/workspace/WatershedParcellation.jl/examples/temp/conte/Conte69.R.midthickness.32k_fs_LR.surf.gii"
 		}
 	},
+	"low-signal map": "/home/wustl/workspace/WatershedParcellation.jl/data/Baddata_bigcluster_LR.dtseries.nii",
+	"template": "/home/wustl/workspace/WatershedParcellation.jl/data/test_parcels.dtseries.nii",
+	"kernel": 2.55,
+	"nrotations": 1000,
+	"cleanup": true,
 	"outputs": {
+		"config": "config.json",
 		"similarity map": "similarity.dconn.nii",
 		"gradient map": "gradients.dconn.nii",
-		"smoothed gradients": "smoothed_gradients.dconn.nii"
+		"smoothed gradients": "smoothed_gradients.dconn.nii",
+		"edgemap": "edgemap.dtseries.nii",
+		"parcels": "parcels.dconn.nii"
 	}
 }
