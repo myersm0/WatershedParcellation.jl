@@ -33,6 +33,12 @@ GC.gc()
 edgemap = CIFTI.load(config["outputs"]["edgemap"])
 labels = run_watershed(edgemap[LR][:], c; thresh_quantile = 0.75)
 
+# For now, we'll just work with a single hemisphere (L) from the above output.
+# You could run the results for each hem separately, then concatenate
+# them later for homogeneity testing. Eventually I plan to add support
+# for doing a full bilateral parcellation all at once, but for now it's more
+# efficient and probably conceptually better (though a little more complicated)
+# to do it this way.
 hem = L
 verts = @collapse vertices(c[hem])
 px = Parcellation{Int}(c[hem], labels[verts])
@@ -67,14 +73,14 @@ GC.gc()
 
 # test a parcel from the parcellation
 p = px[37]
-homogeneity_test(p, cov_corr; criteria = x -> default_criteria(x))
+homogeneity_test(p, cov_corr; criteria = p -> default_criteria(p))
 
 # test a parcel from one of the rotated parcellations
 pθ = pxθ[1][1479]
-homogeneity_test(pθ, cov_corr; criteria = x -> default_criteria(x))
+homogeneity_test(pθ, cov_corr; criteria = p -> default_criteria(p))
 
 # run a homogeneity test on the whole real parcellation
-homogeneity_test(px, cov_corr; criteria = x -> default_criteria(x))
+homogeneity_test(px, cov_corr; criteria = p -> default_criteria(p))
 
 # load in the "baddata" mask (map of low-signal regions):
 temp = CIFTI.load(config["low-signal map"])[L][:]
@@ -88,15 +94,15 @@ function criteria(p::Parcel, baddata::Parcel)
 	return true
 end
 
-homogeneity_test(px, cov_corr; criteria = x -> criteria(x, baddata)
+homogeneity_test(px, cov_corr; criteria = p -> criteria(p, baddata)
 
 # now save the resulting homogeneity to a NamedVector (indexed by parcel keys)
 ks = collect(keys(px))
-real_result = homogeneity_test(px, cov_corr; criteria = x -> criteria(x, baddata))
+real_result = homogeneity_test(px, cov_corr; criteria = p -> criteria(p, baddata))
 
 # do the same for the vector of 1000 rotated parcellations 
 # (also to be indexed by the same set of keys as in the above)
-rot_result = homogeneity_test(pxθ, cov_corr; criteria = x -> criteria(x, baddata), ks = ks)
+rot_result = homogeneity_test(pxθ, cov_corr; criteria = p -> criteria(p, baddata), ks = ks)
 
 # get the mean homogeneity of parcels from the real parcellation
 summarize_homogeneity(real_result)

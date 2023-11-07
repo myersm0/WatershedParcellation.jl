@@ -87,8 +87,7 @@ function homogeneity_test(
 	return result
 end
 
-function summarize_homogeneity(m::NamedMatrix)
-	mat = rot_result
+function summarize_homogeneity(mat::NamedMatrix)
 	nparc, nrot = size(mat)
 	rowmeans = mapslices(x -> mean(x[isfinite.(x)]), rot_result.array; dims = 2)[:]
 	for i in 1:nparc
