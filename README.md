@@ -11,7 +11,7 @@ The goals of this package are:
 	- Bringing RAM usage under control (<= 32 GB)
 	- Breaking the method into modular, customizable pieces that encourage further experimentation and improvement
 - Extend the Julia language's ecosystem of fMRI-related packages
-- Demonstrate utility of a framework of operations (laid out in [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl)). for more easily and performantly working with spatial and functional neuroimaging data in conjunction
+- Demonstrate utility of a framework of operations (laid out in [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl)) for more easily and efficiently working with spatial and functional neuroimaging data in conjunction
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
