@@ -1,20 +1,21 @@
 # WatershedParcellation
 This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CIFTI.jl](https://github.com/myersm0/CIFTI.jl), [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl), and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
-Our new, soon-to-be published results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). A link to the paper on BioArxiv will be available shortly.
+Our results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). The paper pre-print is available [here](https://www.biorxiv.org/content/10.1101/2023.11.10.566629v1).
 
 The goals of this package are:
-- Extend the Julia language's ecosystem of fMRI-related packages
-- Demonstrate utility of a framework of operations (laid out in [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl)). for more easily and performantly working with spatial and functional neuroimaging data in conjunction
+
 - Improve accessibility of this parcellation method to other researchers by:
 	- Implementing it with open source tools
 	- Substantially improving the execution speed
 	- Bringing RAM usage under control (<= 32 GB)
 	- Breaking the method into modular, customizable pieces that encourage further experimentation and improvement
+- Extend the Julia language's ecosystem of fMRI-related packages
+- Demonstrate utility of a framework of operations (laid out in [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl)). for more easily and performantly working with spatial and functional neuroimaging data in conjunction
 
 ## System requirements
 The method requires handling several large matrices. To generate and evaluate a bilateral parcellational of the cortical surface in a space of 64,000 vertices:
-- 32 GB RAM (required)
+- 32 GB RAM
 - 4 to 8 CPU cores (recommended)
 - Julia >= v1.9
 
