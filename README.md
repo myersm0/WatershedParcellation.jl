@@ -106,7 +106,7 @@ using NearestNeighbors
 # make a KDTree that will assist in nearest neighbors search in the rotation process
 tree = KDTree(coordinates(c[hem]); leafsize = 10)
 
-# generate some random 3x3x3 arrays that will be used to rotate the parcels
+# generate 1000 random 3x3x3 arrays that will be used to rotate the parcels
 rotational_params = make_rotations(1000)
 
 # now with the help of those two items, create a vector of 1000 rotated parcellations
@@ -128,7 +128,7 @@ real_result = homogeneity_test(px, cov_corr; criteria = p -> default_criteria(p)
 rotated_result = homogeneity_test(pxθ, cov_corr; criteria = p -> default_criteria(p))
 ```
 
-Notice the keyword arg for which we're passing `p -> default_criteria(p)`. This is one of the strenghts of the current implementation: instead of the supplied `default_criteria` function, you can pass in a function specifying your own parcel inclusion criteria, possibly including other objects in your workspace. Then, in any individual parcel undergoing a homogeneity test, upon receiving a `false` value from this criteria function the result will be `NaN` and a homogeneity score will not be calculated. This is in order to exclude calculation of homogeneity for parcels that overlap with the medial wall, at a minimum, since functional measures (and therefore homogeneity) will not be defined within the medial wall. It can optionally include arbitrary additional criteria, such as exclusion of low signal regions.
+Notice the keyword arg for which we're passing `p -> default_criteria(p)`. This is one of the strenghts of the current implementation: instead of the supplied `default_criteria` function, you can pass in a function specifying your own parcel inclusion criteria, possibly including other objects in your workspace. Then, in any individual parcel undergoing a homogeneity test, upon receiving a `false` value from this criteria function the result will be `NaN` and a homogeneity score will not be calculated. This is in order to exclude calculation of homogeneity for parcels that overlap with the medial wall, at a minimum, since functional measures (and therefore homogeneity) will not be defined within the medial wall. It can optionally include arbitrary additional criteria, such as exclusion of low signal regions. See the full demo for more details.
 
 Finally, compare the real and the rotated results (null model) by taking the mean homogoneity of the real parcellation minus the mean of the same from all rotated parcellations, divided by the standard deviation of homogeneity from the rotated parcellations, to get a z-score:
 ```
