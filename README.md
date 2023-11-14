@@ -1,7 +1,7 @@
 # WatershedParcellation
 This package introduces a high performance Julia implementation of the parcellation method presented originally in Tim Laumann and Evan Gordon's 2016 paper ["Generation and Evaluation of a Cortical Area Parcellation from Resting-State Correlations."](https://pubmed.ncbi.nlm.nih.gov/25316338/), and based on their original MATLAB code. It builds upon recently registered packages [CIFTI.jl](https://github.com/myersm0/CIFTI.jl), [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl), and [CorticalParcels.jl](https://github.com/myersm0/CorticalParcels.jl).
 
-Our results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). The paper pre-print is available [here](https://www.biorxiv.org/content/10.1101/2023.11.10.566629v1).
+Our own new results from this method, a neonatal parcellation generated from a dataset of 261 subjects, can be found [here](https://github.com/myersm0/Myers-Labonte_parcellation). The paper pre-print is available [here](https://www.biorxiv.org/content/10.1101/2023.11.10.566629v1).
 
 The goals of this package are:
 
