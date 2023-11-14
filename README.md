@@ -67,19 +67,19 @@ using WatershedParcellation
 See `examples/demo.jl` for a run-through of the major steps. You would need to edit the `config.json` in the same folder to point to paths of all the necessary input objects, to adjust parameters, etc. Unfortunately, due to the sizes of some of the required inputs, I'm unable to include these artifacts in this repo but I aim to find a way to get around that soon. Some excerpts below from `demo.jl` demonstrate the main functions available in this package. You may need to manually trigger the garbage collector with `GC.gc()` at times, if you're operating under RAM constraints.
 
 ### Edgemap creation
-Supposing you have a matrix `grads` of size #vertices x #vertices, such as would be computed in `examples/make_gradients.jl`, and a `CorticalSurface` struct `c` to provide the vertex space and related spatial information:
+Supposing you have a matrix `grads` of size #vertices x #vertices, such as would be computed in `examples/make_gradients.jl`, and a `CorticalSurface` struct `c` to provide the vertex space and related spatial information (see [CorticalSurfaces.jl](https://github.com/myersm0/CorticalSurfaces.jl) for details):
 ```
 minima = find_minima(grads, c)
 edgemap = run_watershed(grads, minima, c)
 ```
 
 ### Parcel creation and cleanup
-The edgemap then goes into a second pass of watershed (and a much faster one, because this time it's operating on a #nvertices vector rather than a square matrix) where the initial parcellation is created:
+The edgemap then goes into a second pass of watershed, and a much faster one because this time it's operating on a #vertices vector rather than a large square matrix. This is where the initial parcellation is created:
 ```
 labels = run_watershed(edgemap, c)
 ```
 
-Then, because CorticalParcels.jl does not yet support working with a bilateral parcellation, just pull out the left hemisphere for now and make a `Parcellation{Int}` struct from that:
+Then, because CorticalParcels.jl does not yet support working with a bilateral `Parcellation` struct, just pull out the left hemisphere for now and make a `Parcellation{Int}` struct from that:
 ```
 hem = L
 verts = @collapse vertices(c[hem])
@@ -116,9 +116,10 @@ pxθ = rotation_wrapper(px, rotational_params, tree)
 
 Now, load in a dconn (dense connectivity matrix file) with which you want to evaluate parcel homogeneity, and make a covariance of correlations matrix:
 ```
+using CIFTI
 using StatsBase: cov
 dconn = CIFTI.load(config["dconn"])
-cov_corr = make_cov_corr(dconn[L, L], c[hem])
+cov_corr = make_cov_corr(dconn[L, L], c[L])
 ```
 
 Now use it to test the parcel homogeneity of the real parcellation and of the 1000 rotations:
