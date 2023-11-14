@@ -64,6 +64,75 @@ using CorticalParcels
 using WatershedParcellation
 ```
 
-See `examples/demo.jl` for a run-through of the major steps. You would need to edit the `config.json` in the same folder to point to paths of all the necessary input objects, to adjust parameters, etc. Unfortunately, due to the sizes of some of the required inputs, I'm unable to include these artifacts in this repo but I aim to find a way to get around that soon.
+See `examples/demo.jl` for a run-through of the major steps. You would need to edit the `config.json` in the same folder to point to paths of all the necessary input objects, to adjust parameters, etc. Unfortunately, due to the sizes of some of the required inputs, I'm unable to include these artifacts in this repo but I aim to find a way to get around that soon. Some excerpts below from `demo.jl` demonstrate the main functions available in this package. You may need to manually trigger the garbage collector with `GC.gc()` at times, if you're operating under RAM constraints.
+
+### Edgemap creation
+Supposing you have a matrix `grads` of size #vertices x #vertices, such as would be computed in `examples/make_gradients.jl`, and a `CorticalSurface` struct `c` to provide the vertex space and related spatial information:
+```
+minima = find_minima(grads, c)
+edgemap = run_watershed(grads, minima, c)
+```
+
+### Parcel creation and cleanup
+The edgemap then goes into a second pass of watershed (and a much faster one, because this time it's operating on a #nvertices vector rather than a square matrix) where the initial parcellation is created:
+```
+labels = run_watershed(edgemap, c)
+```
+
+Then, because CorticalParcels.jl does not yet support working with a bilateral parcellation, just pull out the left hemisphere for now and make a `Parcellation{Int}` struct from that:
+```
+hem = L
+verts = @collapse vertices(c[hem])
+px = Parcellation{Int}(c[hem], labels[verts])
+edges = pad(edgemap[hem][:], c[hem])
+```
+
+The following are the cleanup operations then applied, to do things like merging small parcels and thresholding the parcel map at a certain edgemap height value. All of these are following the original methods from Gordon et al, but the intention of this package is to allow you a lot of freedom in omitting and/or modifying these steps or supplying your own:
+```
+remove_weak_boundaries!(px, edges; threshold = 0.3, radius = 30)
+merge_small_parcels!(px, edges; minsize = 30, radius = 30)
+threshold!(px, edges; threshold = 0.9)
+merge_small_parcels!(px, edges; minsize = 30, radius = 30)
+threshold!(px, edges; threshold = 0.9)
+remove_articulation_points!(px; minsize = 4)
+remove_small_parcels!(px; minsize = 10)
+```
+
+### Homogeneity evaluation
+Rotate the parcellation around the surface by random x, y, z rotational parameters 1000 times to generate a null distribution of parcellations:
+```
+using NearestNeighbors
+
+# make a KDTree that will assist in nearest neighbors search in the rotation process
+tree = KDTree(coordinates(c[hem]); leafsize = 10)
+
+# generate some random 3x3x3 arrays that will be used to rotate the parcels
+rotational_params = make_rotations(1000)
+
+# now with the help of those two items, create a vector of 1000 rotated parcellations
+# which will be compared against the real parcellation for homogeneity testing below
+pxθ = rotation_wrapper(px, rotational_params, tree)
+```
+
+Now, load in a dconn (dense connectivity matrix file) with which you want to evaluate parcel homogeneity, and make a covariance of correlations matrix:
+```
+using StatsBase: cov
+dconn = CIFTI.load(config["dconn"])
+cov_corr = make_cov_corr(dconn[L, L], c[hem])
+```
+
+Now use it to test the parcel homogeneity of the real parcellation and of the 1000 rotations:
+```
+real_result = homogeneity_test(px, cov_corr; criteria = p -> default_criteria(p))
+rotated_result = homogeneity_test(pxθ, cov_corr; criteria = p -> default_criteria(p))
+```
+
+Notice the keyword arg for which we're passing `p -> default_criteria(p)`. This is one of the strenghts of the current implementation: instead of the supplied `default_criteria` function, you can pass in a function specifying your own parcel inclusion criteria, possibly including other objects in your workspace. Then, in any individual parcel undergoing a homogeneity test, upon receiving a `false` value from this criteria function the result will be `NaN` and a homogeneity score will not be calculated. This is in order to exclude calculation of homogeneity for parcels that overlap with the medial wall, at a minimum, since functional measures (and therefore homogeneity) will not be defined within the medial wall. It can optionally include arbitrary additional criteria, such as exclusion of low signal regions.
+
+Finally, compare the real and the rotated results (null model) by taking the mean homogoneity of the real parcellation minus the mean of the same from all rotated parcellations, divided by the standard deviation of homogeneity from the rotated parcellations, to get a z-score:
+```
+zscore = summarize_homogeneity(real_result, rot_result)
+```
+
 
 [![Build Status](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/myersm0/WatershedParcellation.jl/actions/workflows/CI.yml?query=branch%3Amain)
