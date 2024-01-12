@@ -23,7 +23,12 @@ the weakest edge and proceeding until the edge strength reaches or exceeds `thre
 Returns the number of boundaries that have been merged.
 """
 function remove_weak_boundaries!(
-		px::Parcellation, metric::Vector; threshold = 0.3, radius = 30
+		px::AbstractParcellation, metric::Vector; threshold = 0.3, radius = 30
+	)
+end
+
+function remove_weak_boundaries!(
+		px::HemisphericParcellation, metric::Vector; threshold = 0.3, radius = 30
 	)
 	n = 0
 	margins = interstices(px)
@@ -66,6 +71,11 @@ function remove_weak_boundaries!(
 	return n
 end
 
+function remove_weak_boundaries!(
+		px::BilateralParcellation, metric::Vector; threshold = 0.3, radius = 30
+	)
+	return remove_weak_boundaries!(px[L]) + remove_weak_boundaries!(px[R])
+end
 
 """
     merge_small_parcels!(px, metric; threshold)
@@ -79,7 +89,12 @@ of size `radius`.
 Returns the number of merge operations that have occurred. 
 """
 function merge_small_parcels!(
-		px::Parcellation, metric::Vector; minsize = 30, radius = 30
+		px::AbstractParcellation, metric::Vector; minsize = 30, radius = 30
+	)
+end
+
+function merge_small_parcels!(
+		px::HemisphericParcellation, metric::Vector; minsize = 30, radius = 30
 	)
 	n = 0
 	for k in keys(px)
@@ -102,6 +117,12 @@ function merge_small_parcels!(
 	return n
 end
 
+function merge_small_parcels!(
+		px::BilateralParcellation, metric::Vector; minsize = 30, radius = 30
+	)
+	return merge_small_parcels!(px[L]) + merge_small_parcels!(px[R])
+end
+
 """
     threshold!(px, metric; threshold)
 
@@ -112,7 +133,9 @@ components that emerged into new parcels.
 
 Returns the number of high vertices removed in this process.
 """
-function threshold!(px::Parcellation, metric::Vector; threshold = 0.9)
+function threshold!(px::AbstractParcellation, metric::Vector; threshold = 0.9) end
+
+function threshold!(px::HemisphericParcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold <= 1.0 || error(DomainError)
 	threshold = quantile(metric, [threshold])[1]
 	n = 0
@@ -137,6 +160,10 @@ function threshold!(px::Parcellation, metric::Vector; threshold = 0.9)
 	return n
 end
 
+function threshold!(px::BilateralParcellation, metric::Vector; threshold = 0.9)
+	return threshold!(px[L]) + threshold!(px[R])
+end
+
 """
     remove_articulation_points!(px; threshold)
 
@@ -147,7 +174,9 @@ are at least two "reasonably sized" components of size >= `minsize` vertices.
 
 Returns the number of articulation points that were handled.
 """
-function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
+function remove_articulation_points!(px::AbstractParcellation; minsize::Int = 4) end
+
+function remove_articulation_points!(px::HemisphericParcellation; minsize::Int = 4)
 	n = 0
 	for k in keys(px)
 		new_parcels = cut(px[k])
@@ -163,14 +192,20 @@ function remove_articulation_points!(px::Parcellation; minsize::Int = 4)
 	return n
 end
 
+function remove_articulation_points!(px::BilateralParcellation; minsize::Int = 4)
+	return remove_articulation_points!(px[L]) + remove_articulation_points!(px[R])
+end
+
 """
     remove_articulation_points!(px; threshold)
 
-Remove any parcels in `px::Parcellation` smaller than `minsize` vertices.
+Remove any parcels in parcellation `px` smaller than `minsize` vertices.
 
 Returns the number of small parcels that were removed.
 """
-function remove_small_parcels!(px::Parcellation; minsize = 10)
+function remove_small_parcels!(px::AbstractParcellation; minsize = 10) end
+
+function remove_small_parcels!(px::HemisphericParcellation; minsize = 10)
 	n = 0
 	for k in keys(px)
 		size(px[k]) < minsize || continue
@@ -178,5 +213,9 @@ function remove_small_parcels!(px::Parcellation; minsize = 10)
 		n += 1
 	end
 	return n
+end
+
+function remove_small_parcels!(px::BilateralParcellation; minsize = 10)
+	return remove_small_parcels!(px[L]) + remove_small_parcels!(px[R])
 end
 

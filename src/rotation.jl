@@ -52,13 +52,13 @@ function process_rotation(
 end
 
 function rotation_wrapper(
-		px::Parcellation{T}, rotations::Vector{Array{Float64, 3}}; 
+		px::HemisphericParcellation{T}, rotations::Vector{Array{Float64, 3}}; 
 		neighbors::AdjacencyList, A::AdjacencyMatrix, tree::KDTree
 	) where T
 	parcel_ids = collect(keys(px))
 	nrot = size(rotations, 1)
 	surf = px.surface
-	result = Vector{Parcellation{T}}(undef, nrot)
+	result = Vector{HemisphericParcellation{T}}(undef, nrot)
 	Threads.@threads for r in 1:nrot
 		rotmats = rotations[r]
 		temp = Dict{T, Parcel}()
@@ -71,7 +71,7 @@ function rotation_wrapper(
 end
 
 function rotation_wrapper(
-		px::Parcellation, rotations::Vector{Array{Float64, 3}}, tree::KDTree
+		px::HemisphericParcellation, rotations::Vector{Array{Float64, 3}}, tree::KDTree
 	)
 	haskey(px.surface.appendix, :A) || 
 		error("Operation requires adjacency matrix :A")
