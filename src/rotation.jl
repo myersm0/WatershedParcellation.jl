@@ -65,7 +65,7 @@ function rotation_wrapper(
 		for id in parcel_ids
 			temp[id] = process_rotation(px[id], rotmats, tree, neighbors, A)
 		end
-		result[r] = Parcellation(surf, temp)
+		result[r] = HemisphericParcellation(surf, temp)
 	end
 	return result
 end
