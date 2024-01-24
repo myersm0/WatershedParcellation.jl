@@ -1,6 +1,4 @@
 
-export make_rotations, rotation_wrapper
-
 "Given the specified 3D rotational parameters, generate three 3x3 rotational matrices"
 function compute_rotation_mats(x::T, y::T, z::T)::Array{T, 3} where T <: Real
 	rot = zeros(Float64, 3, 3, 3)

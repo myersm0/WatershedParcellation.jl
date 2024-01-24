@@ -1,8 +1,4 @@
 
-using StatsBase: std
-
-export make_cov_corr, homogeneity_test, default_criteria, summarize_homogeneity
-
 """
 	 make_cov_corr(mat, hem)
 
@@ -39,9 +35,7 @@ end
 Test homogeneity of a `Parcel` with respect to a covariance of correlations matrix,
 or return `NaN` if the parcel fails to satisfy inclusion `criteria`
 """
-function homogeneity_test(
-		p::Parcel, cov_corr::Matrix; criteria::Function
-	)
+function homogeneity_test(p::Parcel, cov_corr::Matrix; criteria::Function)
 	verts = collapse(vertices(p), p.surface)
 	return criteria(p) ? homogeneity(cov_corr[verts, verts]) : NaN
 end

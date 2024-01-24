@@ -1,6 +1,4 @@
 
-export run_watershed
-
 # doesn't return a val, but modifies labels and watershed_zones vectors in place
 function eval_at_height!(h, labels, edgemetric, watershed_zones, neighbors)
 	nodes_at_threshold = @chain begin

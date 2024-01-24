@@ -1,6 +1,4 @@
 
-export find_minima
-
 function find_minima(metric::AbstractMatrix, Aᵖ::AbstractMatrix, v::Int)::BitMatrix
 	neighbors = setdiff(findall(Aᵖ[:, v] .!= 0), v)
 	a = repeat(metric[v, :]', outer = [length(neighbors), 1])

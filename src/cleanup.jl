@@ -1,7 +1,4 @@
 
-export remove_weak_boundaries!, threshold!, merge_small_parcels!
-export remove_articulation_points!, remove_small_parcels!
-
 function edge_strength(margin::Parcel, metric::Vector; radius::Number)
 	verts = vertices(margin)
 	median_edgeval = median(metric[verts])
