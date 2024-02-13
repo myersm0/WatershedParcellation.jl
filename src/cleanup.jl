@@ -134,7 +134,7 @@ function threshold!(px::AbstractParcellation, metric::Vector; threshold = 0.9) e
 
 function threshold!(px::HemisphericParcellation, metric::Vector; threshold = 0.9)
 	0.0 < threshold <= 1.0 || error(DomainError)
-	threshold = quantile(metric, [threshold])[1]
+	threshold = quantile(metric[isfinite.(metric)], [threshold])[1]
 	n = 0
 	for k in keys(px)
 		p = px[k]

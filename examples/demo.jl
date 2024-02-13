@@ -63,7 +63,7 @@ labels = run_watershed(edgemap[LR][:], c; thresh_quantile = 0.75)
 # to do it this way.
 hem = L
 verts = @collapse vertices(c[hem])
-px = Parcellation{Int}(c[hem], labels[verts])
+px = HemisphericParcellation{Int}(c[hem], labels[verts])
 edges = pad(edgemap[hem][:], c[hem])
 
 
