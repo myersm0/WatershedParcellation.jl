@@ -22,7 +22,7 @@ end
     homogeneity(mat)
 
 Compute the homogeneity of a `Matrix` as the percent variance explained by its
-first prinipal component in a PCA
+first principal component in a PCA
 """
 function homogeneity(mat::Matrix)
 	eigenvals = eigvals(mat)
